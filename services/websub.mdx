@@ -1,0 +1,40 @@
+---
+title: WebSub operations
+description: Diagnose subscriptions, verification, publishing, delivery, and content snapshots.
+---
+
+<Frame caption="WebSub operations">
+  <img className="block dark:hidden" src="/images/light/websub.png" alt="WebSub operations in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/websub.png" alt="WebSub operations in the dark theme" />
+</Frame>
+
+## Purpose
+
+WebSub operations exposes Processor's hub state: active subscriptions, pending verification, queued publications, deliveries, publication history, and content snapshots.
+
+## Prerequisites and permissions
+
+WebSub must be configured with externally reachable callback/topic URLs. The diagnostics page requires authenticated administrative access.
+
+## Normal workflow
+
+1. Confirm subscriptions are active and verification is not pending unexpectedly.
+2. Inspect the publish queue after grouped feeds change.
+3. Review delivery attempts, status codes, and retry state.
+4. Compare a publication with its snapshot when consumers report stale content.
+5. Use endpoint and application logs to correlate a failed operation.
+
+## Important controls and behavior
+
+- Processor identifies itself as `processor-websub/1.0` for WebSub client requests.
+- Verification and delivery are asynchronous and can be retried.
+- Diagnostic payloads are bounded and secrets are redacted before display.
+- Queue visibility is operational state, not a promise of durable long-term history.
+
+## Failure states
+
+Pending verification commonly indicates an unreachable callback or a mismatched verification token. Delivery failures may be subscriber timeouts, non-success HTTP responses, DNS/TLS problems, or an invalid topic URL. Repeated failures should be diagnosed before forcing publication again.
+
+## Operational notes
+
+Deployments behind a reverse proxy must preserve callback paths, query parameters, and public scheme/host. Monitor queue age and repeated delivery attempts to prevent slow consumers from hiding broader publication problems.

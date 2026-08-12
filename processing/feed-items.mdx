@@ -1,0 +1,39 @@
+---
+title: Feed items
+description: Search the synchronized article inventory and inspect processing state.
+---
+
+<Frame caption="Feed items">
+  <img className="block dark:hidden" src="/images/light/feed-items.png" alt="Feed items in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/feed-items.png" alt="Feed items in the dark theme" />
+</Frame>
+
+## Purpose
+
+Feed items is the searchable inventory of articles copied from FreshRSS. It is the fastest way to verify that content arrived before investigating embeddings or groups.
+
+## Prerequisites and permissions
+
+At least one folder must be processed. Any authenticated user can browse items they are authorized to view.
+
+## Normal workflow
+
+1. Search title, author, or source.
+2. Filter to a folder and optionally hide items already marked read.
+3. Load additional results as needed.
+4. Open an item to inspect full content, attachments, metadata, and similar items.
+
+## Important controls and behavior
+
+- Folder and unread filters are combined with the search term.
+- **Load more** extends the current result set without changing filters.
+- Read state originates in FreshRSS and is synchronized; it is not inferred from opening an item in Processor.
+- Group membership and similarity are derived state and can change after reprocessing.
+
+## Failure states
+
+An item absent from the list may be outside the configured lookback, belong to a disabled folder, or not have synchronized from FreshRSS. Incomplete titles or bodies reflect upstream content unless processing reports a parsing error.
+
+## Operational notes
+
+Use the stable item detail URL when sharing a diagnosis. Search results and unread totals may change as synchronization continues.

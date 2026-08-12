@@ -1,0 +1,43 @@
+---
+title: GraphQL and code generation
+description: Work with the modular schema, auth directive, generated operations, resolvers, and federation output.
+---
+
+## Schema source
+
+GraphQL SDL is split by domain under `schemas/**/*.graphql`. Every introspectable type, field, argument, and enum value must have a description because the same schema powers runtime introspection and the documentation reference.
+
+The runtime adds:
+
+```graphql
+directive @auth(requires: Role = READ_ONLY) on FIELD_DEFINITION | OBJECT
+```
+
+## Generated outputs
+
+`npm run generate` produces:
+
+- Prisma client code in `src/generated/prisma`.
+- Runtime schema definitions in `src/generated/schema-definitions.ts`.
+- Base GraphQL types and native enums.
+- Typed client documents consumed by Apollo Client.
+- Resolver signatures consumed by Apollo Server.
+
+The client preset re-exports base types so application code imports operations, object types, and enums from `@/generated/graphql`.
+
+## Adding an operation
+
+1. Update modular SDL and include descriptions and `@auth` policy.
+2. Implement or update the resolver.
+3. Add a `gql`/typed operation near the consuming feature.
+4. Run `npm run generate`.
+5. Add resolver, authorization, and UI tests.
+6. Run `npm run schema:copy` to refresh the docs reference.
+
+## Federation
+
+The Apollo federation subgraph name is `processor`. `npm run supergraph` composes `supergraph.graphql` from `supergraph.yaml`. Rename changes affect packaging identity only; schema fields and RSS-domain operation names remain compatible.
+
+## Documentation regression guard
+
+The schema-documentation unit test builds the complete schema, includes authentication/federation definitions, and fails on missing descriptions. The copy test also verifies deterministic ordering and a single final newline.

@@ -1,0 +1,38 @@
+---
+title: JWT diagnostics
+description: Inspect the current authenticated session and protected API behavior.
+---
+
+<Frame caption="JWT diagnostics">
+  <img className="block dark:hidden" src="/images/light/jwt.png" alt="JWT diagnostics in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/jwt.png" alt="JWT diagnostics in the dark theme" />
+</Frame>
+
+## Purpose
+
+JWT diagnostics helps administrators and developers confirm which identity, role, and expiration information Processor sees for the current session and whether a protected request succeeds.
+
+## Prerequisites and permissions
+
+Sign in first. Sensitive token material should be handled as a secret even in a development environment.
+
+## Normal workflow
+
+1. Review the displayed session claims and expiration.
+2. Execute the protected diagnostic request.
+3. Compare the result with expected user and role state.
+4. Sign out or rotate secrets if a token may have been exposed.
+
+## Important controls and behavior
+
+- The page is diagnostic; it does not grant a role or bypass server authorization.
+- Claims describe the current session and can become stale after account changes.
+- Expiration and signing behavior depend on authentication configuration.
+
+## Failure states
+
+Unauthorized responses can mean the session expired, the signing secret changed, cookies were stripped by a proxy, or the user no longer exists. Confirm server time and the canonical public URL when expiry appears inconsistent.
+
+## Operational notes
+
+Never paste live tokens into issue trackers, screenshots, logs, or documentation. Use redacted claim metadata for support.

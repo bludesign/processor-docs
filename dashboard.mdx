@@ -1,0 +1,39 @@
+---
+title: Dashboard
+description: Monitor processing health, recent content, and connected services from the Processor home page.
+---
+
+<Frame caption="Processor dashboard">
+  <img className="block dark:hidden" src="/images/light/dashboard.png" alt="Processor dashboard in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/dashboard.png" alt="Processor dashboard in the dark theme" />
+</Frame>
+
+## Purpose
+
+The dashboard is the operational landing page for Processor. It combines content volume, unread state, grouping activity, service availability, and recent processing results so an operator can decide where to investigate next.
+
+## Prerequisites and permissions
+
+You must be signed in. All authenticated users can view the dashboard; administrative actions reached from the dashboard may still require the `ADMIN` role.
+
+## Normal workflow
+
+1. Review the summary cards for unexpected changes in subscriptions, items, groups, or unread counts.
+2. Check service-health indicators before investigating processing failures.
+3. Open the most relevant feature page from the navigation or a dashboard link.
+4. Use [Processor status](/processing/processor-status) when you need live event detail or a manual run.
+
+## Important controls and behavior
+
+- Summary values are derived from Processor's database and may lag an upstream FreshRSS server until the next processing run.
+- Unread values reflect the synchronized FreshRSS state, not simply the number of locally stored items.
+- Group counts only include folders with similarity grouping enabled.
+- Recent records are shortcuts into the corresponding item, group, or service detail page.
+
+## Failure states
+
+Empty cards are normal immediately after setup. Persistent zero values usually mean no FreshRSS server is enabled, no folders are selected for processing, or the upstream server cannot be reached. Service errors should be investigated on the related detail page before rerunning processing.
+
+## Operational notes
+
+Treat the dashboard as a summary, not a durable audit log. Use the live event timeline, server detail pages, and application logs when diagnosing a specific run.

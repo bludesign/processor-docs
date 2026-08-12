@@ -1,0 +1,38 @@
+---
+title: Docker and hosting
+description: Build and operate the processor service behind a production reverse proxy.
+---
+
+## Docker Compose
+
+The Compose service is named `processor`.
+
+```bash
+cp .env.example .env
+docker compose up --build processor
+```
+
+Replace every example credential and URL before production. Configure persistent storage for the SQLite database and keep service endpoints reachable from the container network rather than assuming `localhost` refers to the host.
+
+## Reverse proxy
+
+Terminate TLS at a trusted proxy and forward the canonical host and scheme. The proxy must support long-lived SSE responses for the two debug endpoints and must not buffer them. Increase request/idle timeouts enough for GraphQL processing and WebSub verification while retaining reasonable global limits.
+
+## External services
+
+- FreshRSS must expose its Google Reader-compatible API.
+- Ollama must be reachable and have the configured embedding model installed.
+- Qdrant must expose a collection compatible with the model vector size.
+- WebSub requires a publicly reachable HTTPS hub/callback path when enabled.
+
+## Persistence and backup
+
+Persist the Prisma SQLite file outside the disposable container layer. Back up SQLite and Qdrant independently and record the Ollama model digest/configuration needed to reproduce embeddings.
+
+## Health and observability
+
+Use container health, HTTP reachability, application logs, SSE status, and native Ollama/Qdrant monitoring together. A healthy Next.js process does not prove upstream authentication or vector indexing succeeds.
+
+## Upgrades
+
+Read schema and environment changes before replacing the image. Back up state, run generation/migrations as defined by the release, verify the dashboard and service detail pages, then process a small folder before returning to normal scheduling.

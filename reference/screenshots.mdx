@@ -1,0 +1,54 @@
+---
+title: Screenshot maintenance
+description: Regenerate the 96-route matrix and publish the 48 desktop assets used by this site.
+---
+
+The Playwright suite is the canonical screenshot inventory. It defines 24 routes and runs each in desktop light, desktop dark, mobile light, and mobile dark modes for 96 captures.
+
+## Regenerate
+
+From the application repository:
+
+```bash
+npm run screenshots
+```
+
+The runner generates code, creates and seeds deterministic mock databases, builds a dedicated `.next-screenshots` application, ensures Chromium is installed, assigns isolated ports, and runs Playwright. Use the faster command only when that prepared state already exists:
+
+```bash
+npm run screenshots:run
+```
+
+## Publish to this site
+
+```bash
+npm run screenshots:copy -- ../processor-docs
+npm run schema:copy -- ../processor-docs
+```
+
+The interactive and non-interactive default is `../processor-docs`. The screenshot publisher copies only:
+
+- `desktop-light/*.png` to `images/light/*.png`
+- `desktop-dark/*.png` to `images/dark/*.png`
+
+Mobile captures remain in the application repository for regression coverage and are not published. VS Code tasks named `screenshots:copy` and `schema:copy` share a `docsDirectory` prompt with the same default.
+
+## Expected inventory
+
+The docs repository must contain 24 light and 24 dark PNGs with identical basenames. [Screenshot gallery](/screenshots) is the human-readable inventory and every referenced asset must exist.
+
+## Adding or renaming a route
+
+1. Update `playwright/routes.ts` with a stable screenshot name, path, and readiness assertion.
+2. Update deterministic mock seed data and mock service endpoints.
+3. Regenerate all four projects and inspect the affected captures.
+4. Update the gallery and matching UI page frames.
+5. Copy assets, then validate docs links and accessibility.
+
+## Review checklist
+
+- No loading skeleton, animation, transient toast, caret, or scrollbar obscures the final state.
+- User data is synthetic and contains no secrets.
+- Product branding, locale, dates, and service URLs are deterministic.
+- Both themes have acceptable contrast and equivalent content.
+- Mobile captures remain useful even though the docs publishes desktop only.

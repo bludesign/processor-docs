@@ -1,0 +1,38 @@
+---
+title: Profile
+description: Update the signed-in user's account, password, and language.
+---
+
+<Frame caption="Profile">
+  <img className="block dark:hidden" src="/images/light/profile.png" alt="Profile in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/profile.png" alt="Profile in the dark theme" />
+</Frame>
+
+## Purpose
+
+Profile lets a signed-in user maintain their own identity settings without administrator intervention.
+
+## Prerequisites and permissions
+
+You must be authenticated. Users can edit only their own profile through this page.
+
+## Normal workflow
+
+1. Review the current email and role.
+2. Update editable account details.
+3. Change password using the required current-password confirmation.
+4. Select English, Spanish, French, or German and save.
+
+## Important controls and behavior
+
+- Role is displayed but controlled through user administration.
+- Password changes are hashed and never display the existing password.
+- Language selection affects localized application routes and UI strings.
+
+## Failure states
+
+An email already assigned to another user cannot be saved. Incorrect current-password confirmation blocks password rotation. A stale session may require signing in again.
+
+## Operational notes
+
+The documentation is currently English-only even though the application supports four locales.

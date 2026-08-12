@@ -1,0 +1,35 @@
+---
+title: Authentication and authorization
+description: Understand sessions, password storage, role hierarchy, and GraphQL enforcement.
+---
+
+Processor uses NextAuth credentials sessions and bcrypt password hashes. Authentication identifies a user; authorization is enforced separately at pages, route handlers, and GraphQL resolvers.
+
+## Roles
+
+The role hierarchy is:
+
+1. `READ_ONLY` — authenticated read access where permitted.
+2. `REGULAR` — normal application operations.
+3. `ADMIN` — user, integration, and processing administration.
+
+The GraphQL directive `@auth(requires: Role = READ_ONLY)` can protect a field or every field on an object. Resolver wrappers reject missing sessions with `UNAUTHENTICATED`, lower roles with `FORBIDDEN`, and invalid server configuration without exposing internal exceptions.
+
+## Setup boundary
+
+`/api/setup/check` reports whether an initial user exists. Setup creates the first administrator only when the user table is empty. It is not a general account-recovery endpoint.
+
+## Session configuration
+
+- `NEXTAUTH_SECRET` signs and encrypts authentication state and must be identical across replicas.
+- `NEXTAUTH_URL` must match the public origin so redirects and secure cookies are correct.
+- Rotating the secret invalidates current sessions.
+- Reverse proxies must forward the public scheme and host correctly.
+
+## Feed URL signing
+
+Grouped Atom URLs use `GROUPED_FEED_SECRET`, falling back to `NEXTAUTH_SECRET`. Use a dedicated value in production so session-secret rotation and feed-link rotation can be managed independently.
+
+## Security practices
+
+Keep `.env` files out of version control, terminate TLS at a trusted boundary, limit database/file permissions, rotate integration keys, and never expose the JWT diagnostics output or signed feed query parameters in public logs.

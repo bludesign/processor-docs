@@ -1,0 +1,40 @@
+---
+title: FreshRSS servers
+description: Connect Processor to the FreshRSS accounts that supply subscriptions, folders, items, and read state.
+---
+
+<Frame caption="FreshRSS servers">
+  <img className="block dark:hidden" src="/images/light/fresh-rss-servers.png" alt="FreshRSS servers in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/fresh-rss-servers.png" alt="FreshRSS servers in the dark theme" />
+</Frame>
+
+## Purpose
+
+FreshRSS is Processor's upstream feed store. A server record supplies the API endpoint and credentials used to synchronize categories, subscriptions, articles, tags, and unread state.
+
+## Prerequisites and permissions
+
+Enable API access in FreshRSS and create credentials with access to the intended feeds. Only administrators can add, edit, test, enable, or delete server records.
+
+## Normal workflow
+
+1. Add the FreshRSS base URL and API credentials.
+2. Test the connection before enabling processing.
+3. Optionally associate Ollama and Qdrant servers for folders that use semantic grouping.
+4. Enable the server and run Processor.
+5. Verify synchronized folders and subscriptions.
+
+## Important controls and behavior
+
+- Environment-provided servers are shown in the UI but cannot be edited or deleted there.
+- Disabling a server stops future synchronization; it does not erase previously stored content.
+- A successful connection test verifies authentication and API reachability, not every feed URL.
+- The server's folder records control which categories are actually processed.
+
+## Failure states
+
+Authentication failures usually indicate API access is disabled, the username/password is incorrect, or the URL points at the web UI rather than the FreshRSS API base. TLS, DNS, timeout, and proxy failures appear as connection errors. A successful server with missing feeds may be using the wrong FreshRSS account.
+
+## Operational notes
+
+Use a dedicated least-privilege account where practical. Rotate credentials as secrets, retain the same server identity during edits, and validate synchronization after FreshRSS upgrades.

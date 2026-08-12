@@ -1,0 +1,40 @@
+---
+title: Ollama servers
+description: Configure the embedding backends used for semantic similarity.
+---
+
+<Frame caption="Ollama servers">
+  <img className="block dark:hidden" src="/images/light/ollama-servers.png" alt="Ollama servers in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/ollama-servers.png" alt="Ollama servers in the dark theme" />
+</Frame>
+
+## Purpose
+
+Ollama servers generate vector embeddings for normalized article content. Processor can store multiple backends and associate the appropriate one with a FreshRSS processing configuration.
+
+## Prerequisites and permissions
+
+Deploy Ollama where Processor can reach its HTTP API and pull an embedding-capable model. Server management requires the administrator role.
+
+## Normal workflow
+
+1. Add a descriptive name and base URL.
+2. Open the server detail page and refresh its model inventory.
+3. Select and test an embedding model.
+4. Associate the server with the relevant FreshRSS configuration.
+5. Process a representative folder and inspect grouping quality.
+
+## Important controls and behavior
+
+- The list reports configured records, not a continuous health guarantee.
+- Environment-defined servers are immutable in the UI.
+- Changing models changes vector semantics and dimensions; existing Qdrant data may no longer be compatible.
+- Deleting a server record does not uninstall Ollama or delete remote models.
+
+## Failure states
+
+Connection failures can originate from container networking, bind addresses, TLS, or an unavailable Ollama process. An empty model list means no models are installed or the model endpoint failed.
+
+## Operational notes
+
+Pin a model for production and treat model replacement as a migration. Benchmark latency and memory with realistic article bodies before enabling large folders.

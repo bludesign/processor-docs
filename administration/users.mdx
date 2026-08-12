@@ -1,0 +1,39 @@
+---
+title: Users and roles
+description: Create accounts, assign roles, and manage access.
+---
+
+<Frame caption="Users and roles">
+  <img className="block dark:hidden" src="/images/light/users.png" alt="Users administration in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/users.png" alt="Users administration in the dark theme" />
+</Frame>
+
+## Purpose
+
+User administration controls local Processor accounts and their `ADMIN` or standard-user role.
+
+## Prerequisites and permissions
+
+Only administrators can open this page or mutate other accounts.
+
+## Normal workflow
+
+1. Search existing users before creating a duplicate account.
+2. Create the account with a unique email and temporary strong password.
+3. Assign the least-privileged role that supports the user's work.
+4. Edit or remove access when responsibilities change.
+
+## Important controls and behavior
+
+- Admins can manage services, processing, and other users.
+- Standard users can use ordinary authenticated application views but cannot perform administrative mutations.
+- Email is the sign-in identity and must be unique.
+- Account changes take effect on later authorization checks; active clients should refresh or sign in again.
+
+## Failure states
+
+Duplicate email, invalid role, weak/invalid input, and attempts blocked by authorization return validation errors. Avoid deleting the last usable administrator.
+
+## Operational notes
+
+Processor provides application roles, not enterprise identity governance. Review the user list periodically and remove dormant access.

@@ -1,0 +1,35 @@
+---
+title: Internationalization
+description: Maintain Processor's English, Spanish, French, and German application translations.
+---
+
+Processor uses `next-intl` with locale-prefixed App Router pages under `src/app/[locale]`.
+
+## Supported locales
+
+- English: `en`
+- Spanish: `es`
+- French: `fr`
+- German: `de`
+
+Translation catalogs live in `messages/{locale}.json`. The documentation site is English-only for now, but should describe localized labels without assuming English is the only application experience.
+
+## Adding visible text
+
+1. Choose the existing feature namespace or create a focused one.
+2. Add the same key shape to all four catalogs.
+3. Use `useTranslations()` in client components or the appropriate server-side `next-intl` API.
+4. Preserve interpolation variables and rich-text placeholders across locales.
+5. Run `npm run check-translations` and relevant tests.
+
+## Route behavior
+
+Locale-aware links should use the repository's navigation helpers and preserve the active locale. Do not hard-code English route prefixes or import server translation APIs into client components.
+
+## Validation
+
+The translation checker detects missing/extra keys and structural mismatches. Tests and screenshot mocks also contain representative English strings; update expectations when public branding or labels change.
+
+## Writing guidance
+
+Keep product name **Processor** unchanged across locales. Translate the surrounding sentence, use concise control labels, and avoid building UI sentences by concatenating separately translated fragments.

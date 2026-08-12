@@ -1,0 +1,40 @@
+---
+title: Ollama server detail
+description: Inspect models, tune embedding configuration, and run a live embedding test.
+---
+
+<Frame caption="Ollama server detail">
+  <img className="block dark:hidden" src="/images/light/ollama-server-detail.png" alt="Ollama server detail in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/ollama-server-detail.png" alt="Ollama server detail in the dark theme" />
+</Frame>
+
+## Purpose
+
+The detail page separates server identity, discovered models, embedding configuration, and a live test so administrators can validate the exact backend Processor will use.
+
+## Prerequisites and permissions
+
+Create an Ollama server record first. Administrator access and network reachability from the Processor server are required.
+
+## Normal workflow
+
+1. Review the overview and connection URL.
+2. Refresh the **Models** tab and confirm the intended embedding model is installed.
+3. Save the model and related configuration.
+4. Enter representative text in **Test embedding** and execute the request.
+5. Confirm a finite vector with the expected dimension is returned.
+
+## Important controls and behavior
+
+- The test executes against Ollama; it does not write the vector to Qdrant.
+- Model discovery reflects the remote server at request time.
+- Vector dimension must agree with the Qdrant collection used by the same processing path.
+- Configuration changes affect later processing and do not rewrite existing vectors automatically.
+
+## Failure states
+
+Model-not-found responses require pulling the configured model on the target Ollama instance. Empty, non-finite, or differently sized vectors should block production use. Timeouts often indicate model load or insufficient compute rather than a malformed request.
+
+## Operational notes
+
+Record model name, version/digest, dimension, and test text when comparing deployments. Avoid silently switching a shared alias to a model with different embeddings.

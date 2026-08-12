@@ -1,0 +1,39 @@
+---
+title: Feed item detail
+description: Inspect an article's content, source metadata, attachments, and grouping relationships.
+---
+
+<Frame caption="Feed item detail">
+  <img className="block dark:hidden" src="/images/light/feed-item-detail.png" alt="Feed item detail in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/feed-item-detail.png" alt="Feed item detail in the dark theme" />
+</Frame>
+
+## Purpose
+
+The detail page shows the normalized record Processor uses for downstream grouping. It separates upstream metadata, stored article content, enclosure data, and similarity relationships.
+
+## Prerequisites and permissions
+
+The item must already exist in Processor. Any authenticated user with normal application access can view it.
+
+## Normal workflow
+
+1. Confirm the source, publication time, author, link, and read state.
+2. Review the stored body and attachments for upstream truncation or parsing problems.
+3. Inspect the item's group, similarity score, and related candidates.
+4. Open the source article when the normalized copy is insufficient.
+
+## Important controls and behavior
+
+- Source links leave Processor and follow the URL supplied by the feed.
+- Similarity values are meaningful only relative to the folder's configured model and threshold.
+- Attachments represent RSS/Atom enclosures and may be absent for ordinary articles.
+- The displayed group can change after clear-and-reprocess operations.
+
+## Failure states
+
+An empty body can be valid for summary-only feeds. A broken source link or attachment is controlled by the publisher. Missing similarity data usually means grouping is disabled, processing is pending, or embedding generation failed.
+
+## Operational notes
+
+When diagnosing grouping quality, compare both the primary and longest article rather than assuming they are the same record.

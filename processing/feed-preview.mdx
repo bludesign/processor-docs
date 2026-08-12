@@ -1,0 +1,38 @@
+---
+title: Feed preview
+description: Validate grouped Atom output before adding it to another reader.
+---
+
+<Frame caption="Feed preview">
+  <img className="block dark:hidden" src="/images/light/feed-preview.png" alt="Feed preview in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/feed-preview.png" alt="Feed preview in the dark theme" />
+</Frame>
+
+## Purpose
+
+Feed preview renders grouped Atom entries inside Processor so operators can validate ordering, selected content, and generated links without configuring an external reader.
+
+## Prerequisites and permissions
+
+Select a grouping-enabled folder with processed groups. You must be signed in.
+
+## Normal workflow
+
+1. Choose a folder or open preview from its Atom-feed action.
+2. Set the result limit and search the rendered entries.
+3. Review titles, timestamps, source context, and summaries.
+4. Open an entry's preview detail for the full generated representation.
+
+## Important controls and behavior
+
+- Limit and search affect preview output, not the canonical stored groups.
+- Preview uses the same feed-generation service as the Atom endpoint.
+- Entry order follows the feed's current publication ordering.
+
+## Failure states
+
+No entries can indicate an empty group set, a restrictive filter, or a feed-generation error. Clear search and restore the default limit before investigating the endpoint itself.
+
+## Operational notes
+
+Use preview after changing source priorities, grouping parameters, or the selected embedding model because each can alter the article chosen for an entry.

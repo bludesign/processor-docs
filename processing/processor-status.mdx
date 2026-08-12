@@ -1,0 +1,40 @@
+---
+title: Processor status
+description: Run feed processing and follow its live server-sent event timeline.
+---
+
+<Frame caption="Processor status">
+  <img className="block dark:hidden" src="/images/light/rss-processor-status.png" alt="Processor status in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/rss-processor-status.png" alt="Processor status in the dark theme" />
+</Frame>
+
+## Purpose
+
+Processor status is the control room for feed ingestion and grouping. It starts or cancels runs and renders live progress delivered by the status SSE endpoint.
+
+## Prerequisites and permissions
+
+Sign in as an administrator. Configure at least one enabled FreshRSS server and the Ollama and Qdrant services required by any folders that use similarity grouping.
+
+## Normal workflow
+
+1. Confirm the live indicator reports **SSE Live**.
+2. Select **Process Feeds** for an incremental run, or **Full Refresh** when rebuilding synchronized state is intentional.
+3. Follow phase totals and the event timeline until the run completes.
+4. Open folders, groups, or service diagnostics if a phase reports an error.
+
+## Important controls and behavior
+
+- **Process Feeds** applies the normal incremental synchronization path.
+- **Full Refresh** performs the more expensive refresh path and should be used deliberately.
+- **Cancel** requests cancellation; the active unit of work may finish before the run stops.
+- **Reconnect** restores the event stream without starting another run.
+- Summary counters and the timeline are transient operational views; database changes already committed are not rolled back by cancellation.
+
+## Failure states
+
+**SSE Disconnected** means the browser lost the live stream, not necessarily that the worker stopped. Reconnect first, then inspect server logs if no status returns. Upstream authentication, Ollama model, Qdrant collection, and folder configuration errors are reported in the timeline.
+
+## Operational notes
+
+Only one processing run should be active. Avoid full refreshes during high upstream load, and preserve timeline details when escalating a failure because later runs replace the most useful context.

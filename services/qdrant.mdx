@@ -1,0 +1,40 @@
+---
+title: Qdrant servers
+description: Configure vector-storage backends for embeddings and similarity searches.
+---
+
+<Frame caption="Qdrant servers">
+  <img className="block dark:hidden" src="/images/light/qdrant-servers.png" alt="Qdrant servers in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/qdrant-servers.png" alt="Qdrant servers in the dark theme" />
+</Frame>
+
+## Purpose
+
+Qdrant stores article embeddings and performs the nearest-neighbor searches used by similarity grouping. Processor supports multiple configured servers for different environments or workloads.
+
+## Prerequisites and permissions
+
+Deploy Qdrant with an API endpoint reachable from Processor. Supply an API key when the service requires one. Server management requires administrator access.
+
+## Normal workflow
+
+1. Add the Qdrant URL and secret configuration.
+2. Test reachability and authentication.
+3. Open server detail to inspect cluster and collection status.
+4. Associate the server with the matching FreshRSS/Ollama processing configuration.
+5. Run a small folder and verify points are created.
+
+## Important controls and behavior
+
+- Environment-defined records are immutable in the UI.
+- The configured collection and Ollama vector dimensions must match.
+- Disabling or deleting a local record does not delete remote collections.
+- The list view is configuration inventory; use detail for current operational state.
+
+## Failure states
+
+Unauthorized responses indicate a missing or invalid API key. Transport failures commonly come from Docker hostnames, TLS termination, or Qdrant binding only to localhost. Dimension mismatch errors require correcting the model/collection pairing before reprocessing.
+
+## Operational notes
+
+Back up Qdrant according to its own operational guidance. Processor's relational database records group state but is not a replacement for vector-store snapshots.

@@ -1,20 +1,46 @@
 ---
 title: "Introduction"
-description: "Welcome to your project"
+description: "Process FreshRSS articles, find related coverage, and publish grouped Atom feeds."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+Processor is a self-hosted dashboard that reads subscriptions from FreshRSS, generates article embeddings with Ollama, stores and searches them in Qdrant, groups similar coverage, and publishes delayed grouped Atom feeds. You keep the application, SQLite database, model, and vector store under your control.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+<Frame caption="The Processor dashboard with deterministic sample data.">
+  <img className="block dark:hidden" src="/images/light/dashboard.png" alt="Processor dashboard in light theme" />
+  <img className="hidden dark:block" src="/images/dark/dashboard.png" alt="Processor dashboard in dark theme" />
+</Frame>
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
+## What you can do
+
+<Columns cols={2}>
+  <Card title="Process FreshRSS subscriptions" icon="rss" href="/processing/subscriptions">
+    Select a FreshRSS server, prioritize subscriptions, and run or monitor the ingestion pipeline.
+  </Card>
+  <Card title="Group related reporting" icon="layers" href="/processing/article-groups">
+    Compare article embeddings within a time window and keep the longest article as the group display entry.
+  </Card>
+  <Card title="Publish grouped Atom feeds" icon="radio" href="/processing/atom-feeds">
+    Create signed, folder-specific feeds that delay publication long enough to collect related coverage.
+  </Card>
+  <Card title="Inspect vector data" icon="waypoints" href="/services/qdrant-detail">
+    Review collection health, payload schema, points, searches, and administrative collection actions.
+  </Card>
+  <Card title="Track matching trends" icon="chart-line" href="/processing/statistics">
+    Filter daily and cumulative similar-article matches by server, folder, and UTC date range.
+  </Card>
+  <Card title="Deliver real-time updates" icon="activity" href="/services/websub">
+    Operate the optional embedded WebSub hub and inspect its bounded, secret-safe diagnostics.
+  </Card>
+</Columns>
+
+## How it fits together
+
+1. FreshRSS supplies subscriptions, folders, article bodies, and unread state.
+2. Ollama converts the weighted title and article content into an embedding.
+3. Qdrant stores the vector plus normalized article metadata.
+4. Processor compares nearby vectors, records durable groups and match history in SQLite, and marks completed FreshRSS items.
+5. Signed grouped Atom feeds expose the longest article in each group, with related entries linked from it.
+
+<Card title="Quickstart" icon="rocket" href="/quickstart" horizontal>
+  Configure the three backing services, create the first administrator, and process your first subscriptions.
 </Card>

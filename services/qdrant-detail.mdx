@@ -1,0 +1,39 @@
+---
+title: Qdrant server detail
+description: Inspect cluster telemetry, collections, points, segments, and optimizer state.
+---
+
+<Frame caption="Qdrant server detail">
+  <img className="block dark:hidden" src="/images/light/qdrant-server-detail.png" alt="Qdrant server detail in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/qdrant-server-detail.png" alt="Qdrant server detail in the dark theme" />
+</Frame>
+
+## Purpose
+
+The detail page gives Processor operators a focused view of the connected Qdrant service and its collections, including vector and indexed-vector counts, segments, and optimizer status.
+
+## Prerequisites and permissions
+
+Create a Qdrant server and ensure its credentials allow collection inspection. Only administrators can change server configuration.
+
+## Normal workflow
+
+1. Verify the overview reports a reachable service.
+2. Inspect the Processor collection's vector size and distance metric.
+3. Compare point and indexed-vector counts after a processing run.
+4. Review segment and optimizer state when indexing is delayed.
+5. Retest the connection after any infrastructure change.
+
+## Important controls and behavior
+
+- Point count can temporarily exceed indexed-vector count while optimization is running.
+- Collection health does not prove embeddings were produced by the expected model.
+- Optimizer fields are observational; Processor does not replace Qdrant's administrative tooling.
+
+## Failure states
+
+A missing collection may be normal before the first eligible item is processed. Red or stalled optimizer state, zero indexed vectors after sustained ingestion, or dimension errors require Qdrant-side investigation and Processor log correlation.
+
+## Operational notes
+
+Use Qdrant's native metrics for alerting. This page is intended for application diagnosis and should not be the sole availability monitor.

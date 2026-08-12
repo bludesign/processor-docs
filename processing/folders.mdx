@@ -1,0 +1,41 @@
+---
+title: Folders and grouping settings
+description: Select FreshRSS folders for processing and configure similarity grouping.
+---
+
+<Frame caption="Folders">
+  <img className="block dark:hidden" src="/images/light/folders.png" alt="Folders in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/folders.png" alt="Folders in the dark theme" />
+</Frame>
+
+## Purpose
+
+Folders maps FreshRSS categories to Processor's processing and grouping policy. Each folder can be included in synchronization and can independently enable similarity grouping and a grouped Atom feed.
+
+## Prerequisites and permissions
+
+Configure and synchronize a FreshRSS server first. Administrators manage folder settings. Similarity grouping also requires reachable Ollama and Qdrant servers.
+
+## Normal workflow
+
+1. Enable processing for the folders Processor should ingest.
+2. Enable similarity grouping only where duplicate or related coverage is useful.
+3. Set the similarity threshold, time window, processing delay, and lookback.
+4. Save the settings, then run or reprocess the folder.
+5. Copy, open, or preview the generated Atom URL when grouping is enabled.
+
+## Important controls and behavior
+
+- **Similarity threshold** ranges from `0` to `1`; higher values demand closer embeddings.
+- **Time window** ranges from `1` to `720` hours and limits which articles can be compared.
+- **Processing delay** ranges from `0` to `1440` minutes and allows late-arriving coverage to accumulate.
+- **Lookback** ranges from `1` to `3650` days; an empty value means no explicit day limit.
+- **Run** processes the folder with current state. **Clear and reprocess** deliberately rebuilds its derived grouping state.
+
+## Failure states
+
+Grouping remains empty when the folder has no eligible content, embeddings cannot be generated, Qdrant is unavailable, or the configured threshold is too strict. A missing Atom URL normally means grouping is disabled or no public feed identifier has been created.
+
+## Operational notes
+
+Change one grouping parameter at a time and compare results. Clearing derived state is destructive to existing group assignments, so use the [grouping debugger](/processing/folder-debug) before rebuilding a large folder.

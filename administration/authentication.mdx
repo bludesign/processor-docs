@@ -1,0 +1,50 @@
+---
+title: Initial setup and sign-in
+description: Create the first administrator and authenticate to Processor.
+---
+
+## Initial setup
+
+<Frame caption="Initial setup">
+  <img className="block dark:hidden" src="/images/light/setup.png" alt="Processor initial setup in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/setup.png" alt="Processor initial setup in the dark theme" />
+</Frame>
+
+The setup route is available only while no users exist. Create the first administrator with a valid email and a strong password, then preserve the recovery and deployment credentials outside the application database. If setup appears on an established installation, stop and verify that Processor is connected to the intended database volume.
+
+## Sign-in
+
+<Frame caption="Sign-in">
+  <img className="block dark:hidden" src="/images/light/sign-in.png" alt="Processor sign-in in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/sign-in.png" alt="Processor sign-in in the dark theme" />
+</Frame>
+
+## Purpose
+
+Authentication protects application pages and GraphQL operations. Credentials establish a server-side session whose role is enforced by route and resolver authorization.
+
+## Prerequisites and permissions
+
+Set a strong `NEXTAUTH_SECRET`, configure the canonical application URL, and create the first admin. Any active user can sign in; only admins can create or manage other users.
+
+## Normal workflow
+
+1. Enter the account email and password.
+2. Complete sign-in and confirm the dashboard loads.
+3. Use Profile to rotate your password or change language.
+4. Sign out when using a shared device.
+
+## Important controls and behavior
+
+- Passwords are hashed before storage and are never returned through GraphQL.
+- Authorization is checked on the server; hiding a UI control is not the security boundary.
+- Locale-prefixed routes preserve the selected application language.
+- The first-user setup flow closes after successful account creation.
+
+## Failure states
+
+Invalid credentials return a generic error. Repeated session failures often indicate an inconsistent secret, incorrect public URL, proxy cookie handling, or clock skew. A locked-out single-admin installation requires an operator-controlled database recovery rather than reopening setup.
+
+## Operational notes
+
+Rotate secrets through the deployment platform and restart all instances together. Changing `NEXTAUTH_SECRET` invalidates existing sessions.

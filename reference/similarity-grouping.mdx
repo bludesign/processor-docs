@@ -1,0 +1,40 @@
+---
+title: Similarity grouping
+description: Understand scoring, temporal constraints, primary selection, and tuning tradeoffs.
+---
+
+Similarity grouping answers a bounded question: *which articles in the same configured folder, from the same Processor server context, are semantically close enough and published near enough in time to represent related coverage?*
+
+## Candidate boundaries
+
+Before vector similarity is considered, Processor restricts candidates by folder, server, lookback age, and time window. A semantically identical article outside those boundaries is intentionally not grouped.
+
+## Embeddings and scores
+
+Processor normalizes article content, increases title influence using `RSS_PROCESSOR_TITLE_WEIGHT`, and requests an Ollama embedding. Qdrant compares the vector using the collection's configured distance metric. The folder threshold is interpreted from `0` to `1`; increasing it reduces false positives but produces more single-item groups.
+
+## Group construction
+
+The earliest qualifying article anchors the group and remains its primary identity. Each member records similarity to the primary. Processor also caches the longest-body member and its similarity so feed rendering remains efficient.
+
+Source priority from `0` to `1000` biases the article surfaced as the preferred main coverage where policy applies. It does not change the embedding or make unrelated articles pass the threshold.
+
+## Recommended tuning sequence
+
+1. Pin the Ollama model and Qdrant vector dimension.
+2. Start near the default threshold of `0.8` and a `48`-hour window.
+3. Test a representative folder in the grouping debugger.
+4. Adjust threshold before widening the time window.
+5. Add source priority only after group membership is acceptable.
+6. Use processing delay when syndicated versions arrive at different times.
+
+## Diagnosing unexpected groups
+
+- **False positive:** compare bodies, title weighting, exact score, and threshold.
+- **Missed relationship:** verify both articles share folder/server scope and fall within time/lookback limits.
+- **Unexpected main article:** compare source priorities and body lengths; primary and longest are distinct concepts.
+- **Results changed after deploy:** confirm model name/digest, vector dimension, distance metric, and normalization settings.
+
+## Reprocessing
+
+Changing the model or vector dimension invalidates meaningful comparison with existing points. Plan a collection migration or deliberate clear-and-reprocess. Small threshold, priority, or time-window changes can also alter derived groups and should be validated before broad rebuilds.

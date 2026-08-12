@@ -1,33 +1,32 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
-
-# Documentation project instructions
+# Processor documentation instructions
 
 ## About this project
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
+- This is the public documentation site for Processor, built on [Mintlify](https://mintlify.com)
 - Pages are MDX files with YAML frontmatter
 - Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+- Product source lives in the sibling `../rss-processor` repository
+- Screenshots and `schema.graphql` are generated in the application repository and copied here
 
 ## Terminology
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- Use **Processor** as the product name.
+- Use **RSS processor** only for the feed-processing subsystem.
+- Use **FreshRSS**, **Ollama**, **Qdrant**, **GraphQL**, **WebSub**, and **Atom** with their official capitalization.
 
 ## Style preferences
-
-{/* Add any project-specific style rules below */}
 
 - Use active voice and second person ("you")
 - Keep sentences concise — one idea per sentence
 - Use sentence case for headings
 - Bold for UI elements: Click **Settings**
 - Code formatting for file names, commands, paths, and code references
+- Start UI pages with one frame containing theme-aware light and dark screenshots; use `block dark:hidden` for light and `hidden dark:block` for dark
+- Describe prerequisites, permissions, primary workflows, failure states, and operational notes
 
 ## Content boundaries
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Document current behavior verified against source, tests, schema, and environment examples.
+- Do not publish historical plans, code reviews, or migration-status notes.
+- Do not expose credentials, feed signing tokens, WebSub secrets, or private callback data.
+- Keep the GraphQL schema generated; edit source SDL in the application repository instead.

@@ -1,0 +1,57 @@
+---
+title: Local development and testing
+description: Generate code, run the application, execute quality checks, and work with test data.
+---
+
+## Requirements
+
+Use the Node.js/npm versions supported by the repository and make FreshRSS, Ollama, and Qdrant available when exercising real integrations. Copy `.env.example` to an untracked local environment file and replace placeholders.
+
+## Start locally
+
+```bash
+npm install
+npm run dev
+```
+
+`dev` runs Prisma, schema, and GraphQL generation before starting Next.js. Open `http://localhost:3000`; locale routing redirects to a supported locale.
+
+## Generation
+
+```bash
+npm run generate
+```
+
+Generation runs, in order:
+
+1. Prisma `db push` and client generation into `src/generated/prisma`.
+2. Deterministic composition of `schemas/**/*.graphql` into runtime TypeScript definitions.
+3. GraphQL Code Generator for base types, client typed documents, and resolver types.
+
+Generated files are build products and should not be edited manually.
+
+## Quality checks
+
+```bash
+npm run lint
+npm test
+npm run check-translations
+npm run build
+```
+
+`npm run full-check` formats, regenerates, fixes lint, runs coverage, checks translations, and builds. Unit/component tests use Vitest and React Testing Library and are colocated in `__tests__` directories.
+
+## Mock screenshot environment
+
+`npm run screenshots` creates deterministic mock databases, seeds representative data, builds a screenshot-specific application, installs Chromium when needed, and executes all light/dark desktop/mobile Playwright projects. See [Screenshot maintenance](/reference/screenshots).
+
+## Useful scripts
+
+- `npm run prisma:inspect` opens Prisma Studio.
+- `npm run schema:copy` publishes the printable GraphQL schema.
+- `npm run screenshots:copy` publishes desktop screenshots.
+- `npm run supergraph` composes the Apollo federation supergraph.
+
+## Testing discipline
+
+Add translations for every visible string, regenerate after schema changes, keep tests deterministic, and avoid depending on a developer's real services for unit or screenshot coverage.
