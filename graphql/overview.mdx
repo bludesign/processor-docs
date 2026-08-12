@@ -1,0 +1,38 @@
+---
+title: GraphQL overview
+description: Use Processor's typed Apollo API and navigate the generated schema reference.
+---
+
+Processor serves Apollo GraphQL at `/api/graphql`. The reference in this tab is generated from the same described SDL modules used by the application, plus the runtime authentication directive.
+
+## Transport
+
+Send `GET` or `POST` requests to:
+
+```text
+https://your-processor.example/api/graphql
+```
+
+Browser clients normally authenticate with the active NextAuth session cookie. Apollo Sandbox can be enabled in development with `APOLLO_SANDBOX=true`.
+
+## Authorization
+
+Schema fields and objects can declare `@auth(requires: Role)`. Roles ascend from `READ_ONLY` to `REGULAR` to `ADMIN`. Authentication and role checks occur on the server even when the UI also hides unavailable actions.
+
+## Type safety
+
+Application operations use GraphQL Code Generator and typed documents. After changing SDL or operations, run:
+
+```bash
+npm run generate
+```
+
+Do not edit `src/generated` directly. See [GraphQL and code generation](/reference/graphql-codegen) for the repository workflow.
+
+## Published schema
+
+`npm run schema:copy` deterministically composes `schemas/**/*.graphql`, includes `@auth`, builds the printable runtime schema, and writes `schema.graphql` here. The GraphQL reference navigation is generated from that file.
+
+<Warning>
+The schema documents public shapes and authorization intent. It does not include deployment credentials, signed feed URLs, or a bypass for session authentication.
+</Warning>

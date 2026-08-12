@@ -1,0 +1,38 @@
+---
+title: Feed preview detail
+description: Inspect the exact content and metadata of a generated feed entry.
+---
+
+<Frame caption="Feed preview detail">
+  <img className="block dark:hidden" src="/images/light/feed-preview-detail.png" alt="Feed preview detail in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/feed-preview-detail.png" alt="Feed preview detail in the dark theme" />
+</Frame>
+
+## Purpose
+
+Feed preview detail shows the content selected for one generated Atom entry, including its primary source, related coverage, dates, links, and normalized body.
+
+## Prerequisites and permissions
+
+Open an entry from [feed preview](/processing/feed-preview). The underlying group and items must still exist.
+
+## Normal workflow
+
+1. Confirm the generated title, author/source, timestamps, and destination link.
+2. Review the body that a consumer will receive.
+3. Compare related articles when the selection is unexpected.
+4. Return to the group or item detail to diagnose configuration.
+
+## Important controls and behavior
+
+- This view is a representation of current data, not a frozen copy of the published entry.
+- Primary and longest articles may differ.
+- External links are supplied by upstream feeds and are not rewritten for availability.
+
+## Failure states
+
+A previously bookmarked preview can stop resolving after derived state is cleared and rebuilt. Missing content should be checked on the underlying item before treating it as an Atom serialization defect.
+
+## Operational notes
+
+Capture the group and item identifiers when reporting a feed issue; the visual title alone may not uniquely identify a rapidly changing entry.

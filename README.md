@@ -1,30 +1,20 @@
-# Mintlify Starter Kit
+# Processor documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+The [Mintlify](https://mintlify.com) site for [Processor](https://github.com/bludesign/processor), a self-hosted RSS processing and semantic-grouping application.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Structure
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+| Path | Contents |
+| --- | --- |
+| `docs.json` | Branding, navigation, GraphQL reference, navbar, and footer |
+| `processing/` | Dashboard workflows, feeds, folders, grouping, and statistics |
+| `services/` | FreshRSS, Ollama, Qdrant, and WebSub |
+| `administration/` | Setup, authentication, users, profile, JWT, and posts |
+| `reference/` | Architecture, configuration, APIs, database, hosting, and development |
+| `images/light/`, `images/dark/` | Playwright desktop captures, one pair per documented route |
+| `schema.graphql` | Generated runtime GraphQL schema |
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
+## Local preview
 
 Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
 
@@ -38,18 +28,38 @@ Run the following command at the root of your documentation, where your `docs.js
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Open `http://localhost:3000`.
+
+Run the quality checks before publishing:
+
+```bash
+mint validate
+mint broken-links --check-anchors
+mint a11y
+```
+
+If `/opt/homebrew/bin/mint` reports Swift Package Manager usage, call the npm-installed Mintlify binary by its full path. Both tools use the same executable name.
+
+## Publishing generated artifacts
+
+Run these commands from the sibling application repository:
+
+```bash
+npm run screenshots
+npm run screenshots:copy -- ../processor-docs
+npm run schema:copy -- ../processor-docs
+```
+
+The screenshot copy publishes only desktop light and dark PNGs. Mobile captures remain in the application repository for responsive verification.
+
+## Writing pages
+
+Every page uses YAML frontmatter with `title` and `description`. UI pages open with one screenshot frame that automatically switches assets with the documentation theme, then explain prerequisites, permissions, controls, workflows, errors, and operational notes. Put both images inside the frame using `className="block dark:hidden"` for the light asset and `className="hidden dark:block"` for the dark asset. Register every page in `docs.json`; unregistered pages remain hidden.
 
 ## Publishing changes
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+The Mintlify GitHub app deploys changes to `https://processor.mintlify.app` from the default branch.
 
-## Need help?
+## License
 
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+MIT. See [`LICENSE`](LICENSE).

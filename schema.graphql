@@ -1,0 +1,2374 @@
+"""Requires the current user to hold at least the selected role"""
+directive @auth(
+  """Minimum role required to access the field or object"""
+  requires: Role = READ_ONLY
+) on FIELD_DEFINITION | OBJECT
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+directive @external(reason: String) on OBJECT | FIELD_DEFINITION
+
+directive @tag(name: String!) repeatable on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+directive @extends on OBJECT | INTERFACE
+
+"""
+Non-negative safe integer timestamp in milliseconds since the Unix epoch
+"""
+scalar TimestampMilliseconds
+
+"""
+Non-negative safe integer timestamp in microseconds since the Unix epoch
+"""
+scalar TimestampMicroseconds
+
+"""Root query type - extended by domain-specific schemas"""
+type Query {
+  """Basic health check query"""
+  hello: String
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+
+  """Retrieve RSS feed items from a specific stream with optional filtering"""
+  getRssStreamContents(
+    """Stream ID (defaults to reading list - all subscribed feeds)"""
+    streamId: String = "user/-/state/com.google/reading-list"
+
+    """Filtering and pagination options"""
+    options: StreamContentsOptions
+
+    """Number of similar items to find (defaults to 5)"""
+    similarCount: Int = 5
+
+    """Minimum similarity score threshold for similar items (0.0 to 1.0)"""
+    minScore: Float
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): StreamContents!
+
+  """Retrieve RSS feed items content by IDs for similarity search"""
+  getRssStreamItemsContent(
+    """Item IDs to retrieve content for"""
+    ids: [String!]!
+
+    """Number of similar items to find (defaults to 10)"""
+    similarCount: Int = 10
+
+    """Minimum similarity score threshold for similar items (0.0 to 1.0)"""
+    minScore: Float
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): StreamContents!
+
+  """Retrieve RSS feed item content by single ID for similarity search"""
+  getRssStreamItemContent(
+    """Item ID to retrieve content for"""
+    id: String!
+
+    """Number of similar items to find (defaults to 10)"""
+    similarCount: Int = 10
+
+    """Minimum similarity score threshold for similar items (0.0 to 1.0)"""
+    minScore: Float
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): FeedItem!
+
+  """Retrieve the complete list of RSS feed subscriptions"""
+  getRssSubscriptionList(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): FeedSubscriptionList!
+
+  """
+  Retrieve the complete list of RSS tags/categories with associated subscriptions
+  """
+  getRssTagList(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): TagList!
+
+  """Retrieve a single RSS tag/category by ID"""
+  getRssTag(
+    """Tag ID to retrieve"""
+    id: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): TagItem
+
+  """Retrieve unread counts for all feeds, folders, and states"""
+  getRssUnreadCounts(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): UnreadCountList!
+
+  """Retrieve all posts (both published and unpublished)"""
+  posts: [Post!]!
+
+  """Retrieve a specific post by ID"""
+  post(
+    """Unique identifier of the post to retrieve"""
+    id: String!
+  ): Post
+
+  """Retrieve all FreshRSS servers with optional filtering"""
+  getFreshRssServers(
+    """Optional filter parameters"""
+    filter: GetFreshRssServersInput
+  ): [FreshRssServer!]!
+
+  """Retrieve all Ollama servers"""
+  getOllamaServers: [OllamaServer!]!
+
+  """Retrieve a specific Ollama server by ID"""
+  getOllamaServer(
+    """Unique identifier of the Ollama server to retrieve"""
+    id: ID!
+  ): OllamaServer
+
+  """Generate a test embedding using the specified Ollama server"""
+  testOllamaEmbedding(
+    """Text to generate embeddings for"""
+    text: String!
+
+    """Ollama server ID to use for the request"""
+    serverId: ID!
+
+    """Model to use (defaults to the server's configured model)"""
+    model: String
+  ): OllamaEmbeddingTestResult!
+
+  """Retrieve all Qdrant servers"""
+  getQdrantServers: [QdrantServer!]!
+
+  """Retrieve a specific Qdrant server by ID"""
+  getQdrantServer(
+    """Unique identifier of the Qdrant server to retrieve"""
+    id: ID!
+  ): QdrantServer
+
+  """Generate vector embeddings for the provided text"""
+  getEmbeddings(
+    """Text to generate embeddings for"""
+    text: String!
+
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+  ): [Float!]!
+
+  """Search for documents similar to the query text (general search)"""
+  searchSimilar(
+    """Search query text to find similar content"""
+    query: String!
+
+    """Maximum number of results to return"""
+    limit: Int
+
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+  ): [SearchResult!]!
+
+  """
+  Search for RSS feed items similar to the query text (feed-specific search)
+  """
+  searchSimilarFeedItems(
+    """Search query text to find similar feed items"""
+    query: String!
+
+    """Maximum number of results to return"""
+    limit: Int
+
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+  ): [FeedItemSearchResult!]!
+
+  """
+  Search for RSS feed items similar to the item with the given ID (feed-specific search by ID)
+  """
+  searchSimilarFeedItemsById(
+    """Feed item ID to find similar items for"""
+    id: String!
+
+    """Maximum number of results to return"""
+    limit: Int
+
+    """
+    Minimum similarity score threshold (0.0-1.0, omit to return all results)
+    """
+    minScore: Float
+
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+  ): [FeedItemSearchResult!]!
+
+  """Scroll through vector points in a collection with pagination"""
+  scrollPoints(
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+
+    """Maximum number of points to return per page"""
+    limit: Int = 20
+
+    """Offset for pagination (from previous scroll result)"""
+    offset: String
+  ): ScrollPointsResult!
+
+  """Retrieve a specific vector point by ID"""
+  getPoint(
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+
+    """ID of the point to retrieve"""
+    pointId: String!
+  ): QdrantPoint
+
+  """Search vector points by ID or title"""
+  searchPoints(
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+
+    """Search term to match against point ID or title"""
+    searchTerm: String!
+
+    """Maximum number of results to return"""
+    limit: Int = 20
+  ): SearchPointsResult!
+
+  """Get the current status of the RSS feed processor"""
+  getRssProcessorStatus(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): RssProcessorStatus!
+
+  """Check if the system requires initial setup"""
+  getSetupStatus: SetupStatus!
+
+  """Get grouping settings for a folder"""
+  getFolderGroupingSettings(
+    """Unique identifier of the folder"""
+    folderId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): FolderGroupingSettings!
+
+  """Get all article groups for a folder"""
+  getArticleGroups(
+    """Unique identifier of the folder"""
+    folderId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+
+    """Maximum number of groups to return"""
+    limit: Int! = 50
+
+    """Number of groups to skip for offset pagination"""
+    offset: Int! = 0
+
+    """Sort option for the groups"""
+    sortBy: ArticleGroupSortBy! = DATE_DESC
+  ): [ArticleGroup!]!
+
+  """Get all article groups across all folders"""
+  getAllArticleGroups(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+
+    """Maximum number of groups to return"""
+    limit: Int! = 50
+
+    """Number of groups to skip for offset pagination"""
+    offset: Int! = 0
+
+    """Sort option for the groups"""
+    sortBy: ArticleGroupSortBy! = DATE_DESC
+  ): [ArticleGroup!]!
+
+  """Get the Atom feed URL for a folder's grouped articles"""
+  getGroupedFeedUrl(
+    """Unique identifier of the folder"""
+    folderId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): String!
+
+  """Get a specific article group by ID"""
+  getArticleGroup(
+    """Unique identifier of the article group"""
+    groupId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): ArticleGroup
+
+  """Get similar-article match statistics grouped by UTC publication day"""
+  getSimilarityStatistics(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+
+    """Optional folder ID; omit to aggregate all folders"""
+    folderId: String
+
+    """Optional inclusive UTC start date in YYYY-MM-DD format"""
+    startDate: String
+
+    """
+    Optional inclusive UTC end date in YYYY-MM-DD format; defaults to today
+    """
+    endDate: String
+  ): SimilarityStatistics!
+
+  """Retrieve all users in the system (admin only)"""
+  users: [User!]!
+
+  """Retrieve a specific user by ID (admin only)"""
+  user(
+    """Unique identifier of the user to retrieve"""
+    id: String!
+  ): User
+
+  """
+  Access protected data to test authentication (requires regular user or above)
+  """
+  protectedData: ProtectedDataResult!
+
+  """Retrieve the current authenticated user's information"""
+  me: User
+}
+
+"""Root mutation type - extended by domain-specific schemas"""
+type Mutation {
+  """Empty field to ensure valid GraphQL schema"""
+  _empty: String
+
+  """Apply one or more FreshRSS tags to an item"""
+  setRssItemTags(
+    """FreshRSS item identifier"""
+    itemId: String!
+
+    """Tag identifiers to apply"""
+    tags: [String!]!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): SetRssItemTagsResult!
+
+  """Remove one or more FreshRSS tags from an item"""
+  removeRssItemTags(
+    """FreshRSS item identifier"""
+    itemId: String!
+
+    """Tag identifiers to remove"""
+    tags: [String!]!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): RemoveRssItemTagsResult!
+
+  """
+  Set a subscription's longest-article priority (0-1000). Recomputes the main article for the subscription's existing groups.
+  """
+  setSubscriptionPriority(
+    """FreshRSS subscription id (feed id)"""
+    feedId: String!
+
+    """Priority value, 0-1000 (higher wins; 0 is the default/lowest)"""
+    priority: Int!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): SetSubscriptionPriorityResult!
+
+  """Create a new post"""
+  createPost(
+    """Post creation input data"""
+    input: CreatePostInput!
+  ): Post!
+
+  """Update an existing post"""
+  updatePost(
+    """Unique identifier of the post to update"""
+    id: String!
+
+    """Post update input data"""
+    input: UpdatePostInput!
+  ): Post!
+
+  """Delete a post permanently"""
+  deletePost(
+    """Unique identifier of the post to delete"""
+    id: String!
+  ): Post!
+
+  """Set processing setting for an RSS tag folder"""
+  setRssTagProcessing(
+    """Unique identifier of the folder tag"""
+    id: String!
+
+    """Processing setting to apply"""
+    processingSetting: ProcessingSetting!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): SetRssTagProcessingResult!
+
+  """Create a new FreshRSS server"""
+  createFreshRssServer(
+    """FreshRSS server creation input data"""
+    input: CreateFreshRssServerInput!
+  ): FreshRssServer!
+
+  """Update an existing FreshRSS server"""
+  updateFreshRssServer(
+    """Unique identifier of the server to update"""
+    id: String!
+
+    """FreshRSS server update input data"""
+    input: UpdateFreshRssServerInput!
+  ): FreshRssServer!
+
+  """Delete a FreshRSS server permanently"""
+  deleteFreshRssServer(
+    """Unique identifier of the server to delete"""
+    id: String!
+  ): FreshRssServer!
+
+  """Create a new Ollama server"""
+  createOllamaServer(
+    """Ollama server creation input data"""
+    input: CreateOllamaServerInput!
+  ): OllamaServer!
+
+  """Update an existing Ollama server"""
+  updateOllamaServer(
+    """Unique identifier of the server to update"""
+    id: String!
+
+    """Ollama server update input data"""
+    input: UpdateOllamaServerInput!
+  ): OllamaServer!
+
+  """Delete an Ollama server permanently"""
+  deleteOllamaServer(
+    """Unique identifier of the server to delete"""
+    id: String!
+  ): OllamaServer!
+
+  """Create a new Qdrant server"""
+  createQdrantServer(
+    """Qdrant server creation input data"""
+    input: CreateQdrantServerInput!
+  ): QdrantServer!
+
+  """Update an existing Qdrant server"""
+  updateQdrantServer(
+    """Unique identifier of the server to update"""
+    id: String!
+
+    """Qdrant server update input data"""
+    input: UpdateQdrantServerInput!
+  ): QdrantServer!
+
+  """Delete a Qdrant server permanently"""
+  deleteQdrantServer(
+    """Unique identifier of the server to delete"""
+    id: String!
+  ): QdrantServer!
+
+  """Add a document to the vector database with optional metadata"""
+  addDocument(
+    """Document content to be indexed"""
+    content: String!
+
+    """JSON metadata associated with the document"""
+    metadata: String
+
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+  ): Boolean!
+
+  """Delete specific vector points by their IDs"""
+  deletePoints(
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+
+    """Array of point IDs to delete"""
+    pointIds: [String!]!
+  ): Boolean!
+
+  """Clear all vector points from a collection"""
+  clearCollection(
+    """
+    Qdrant server ID to use for the request (defaults to environment server)
+    """
+    serverId: String = "environment"
+  ): Boolean!
+
+  """Manually trigger RSS feed processing for all subscriptions"""
+  processRssFeeds(
+    """
+    Whether to perform a full refresh, ignoring processed tags (defaults to false)
+    """
+    fullRefresh: Boolean = false
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): ProcessRssFeedsResult!
+
+  """Cancel currently running RSS feed processing"""
+  cancelRssProcessing(
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String = "environment"
+  ): CancelRssProcessingResult!
+
+  """Create the first administrator user (only allowed when no users exist)"""
+  createFirstAdminUser(
+    """Administrator account details"""
+    input: CreateFirstAdminUserInput!
+  ): CreateFirstAdminUserResult!
+
+  """Update grouping settings for a folder"""
+  updateFolderGroupingSettings(
+    """Unique identifier of the folder"""
+    folderId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+
+    """Minimum cosine similarity threshold (0.0-1.0)"""
+    similarityThreshold: Float
+
+    """Time window in hours to look for similar articles"""
+    timeWindowHours: Int
+
+    """Delay in minutes before publishing to allow grouping"""
+    publishDelayMinutes: Int
+
+    """Maximum article age in days for reprocessing (1-3650; null = no limit)"""
+    lookbackDays: Int
+  ): FolderGroupingSettings!
+
+  """Manually trigger similarity grouping for one or all folders"""
+  triggerSimilarityGrouping(
+    """
+    Optional: specific folder to process (all SIMILARITY_GROUPING folders if omitted)
+    """
+    folderId: String
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): GroupingResult!
+
+  """Clear all article groups for a folder and reprocess from scratch"""
+  clearAndReprocessFolder(
+    """Unique identifier of the folder"""
+    folderId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): GroupingResult!
+
+  """Remove an article from a group (makes it a standalone entry)"""
+  removeArticleFromGroup(
+    """Unique identifier of the article group"""
+    groupId: String!
+
+    """Qdrant document ID of the article to remove"""
+    itemId: String!
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): Boolean!
+
+  """Clean up expired article groups (older than timeWindowHours * 2)"""
+  cleanupExpiredArticleGroups(
+    """
+    Optional: specific folder to clean up (all SIMILARITY_GROUPING folders if omitted)
+    """
+    folderId: String
+
+    """Server ID to use for the request (defaults to environment server)"""
+    serverId: String! = "environment"
+  ): CleanupResult!
+
+  """Create a new user account (admin only)"""
+  createUser(
+    """New user account details"""
+    input: CreateUserInput!
+  ): CreateUserResult!
+
+  """Update a user's role (admin only)"""
+  updateUserRole(
+    """Target user and replacement role"""
+    input: UpdateUserRoleInput!
+  ): UpdateUserRoleResult!
+
+  """Delete a user account (admin only)"""
+  deleteUser(
+    """Unique identifier of the user to delete"""
+    userId: String!
+  ): DeleteUserResult!
+
+  """Update the current authenticated user's profile"""
+  updateMe(
+    """Profile fields to update"""
+    input: UpdateMeInput!
+  ): User
+}
+
+"""
+Feed enclosure representing attached media files (images, audio, video)
+"""
+type FeedEnclosure {
+  """URL of the enclosure file"""
+  href: String!
+
+  """MIME type of the enclosure (e.g., image/jpeg, audio/mp3)"""
+  type: String!
+
+  """Size of the enclosure file in bytes (optional)"""
+  length: Int
+}
+
+"""Feed item summary/description content"""
+type FeedSummary {
+  """HTML or plain text content of the feed item summary"""
+  content: String!
+}
+
+"""Origin information about the RSS feed source"""
+type FeedOrigin {
+  """Stream ID identifying the feed in Fresh RSS"""
+  streamId: String!
+
+  """HTML URL of the original website/blog"""
+  htmlUrl: String!
+
+  """Display title of the RSS feed"""
+  title: String!
+}
+
+"""Canonical link information for feed items"""
+type FeedCanonical {
+  """Canonical URL of the feed item"""
+  href: String!
+}
+
+"""Individual RSS feed item with complete metadata"""
+type FeedItem {
+  """Unique identifier for the feed item"""
+  id: String!
+
+  """Crawl timestamp in milliseconds from Fresh RSS"""
+  crawlTimeMsec: TimestampMilliseconds!
+
+  """Timestamp in microseconds (Google Reader format)"""
+  timestampUsec: TimestampMicroseconds!
+
+  """Publication timestamp (Unix timestamp)"""
+  published: Int!
+
+  """Title of the feed item"""
+  title: String!
+
+  """Canonical links for the feed item"""
+  canonical: [FeedCanonical!]
+
+  """Alternative links for the feed item"""
+  alternate: [FeedCanonical!]
+
+  """Categories/tags assigned to the feed item"""
+  categories: [String!]!
+
+  """Information about the feed source"""
+  origin: FeedOrigin!
+
+  """Summary/description of the feed item (optional)"""
+  summary: FeedSummary
+
+  """Author of the feed item (optional)"""
+  author: String
+
+  """Media enclosures attached to the feed item"""
+  enclosure: [FeedEnclosure!]
+
+  """Similar content found for this feed item"""
+  similarContent: [FeedItemSearchResult!]
+}
+
+"""Container for a stream of feed items with pagination support"""
+type StreamContents {
+  """Stream identifier"""
+  id: String!
+
+  """Last update timestamp (Unix timestamp)"""
+  updated: Int!
+
+  """List of feed items in the stream"""
+  items: [FeedItem!]!
+
+  """Continuation token for pagination (optional)"""
+  continuation: String
+}
+
+"""Options for filtering and paginating RSS stream contents"""
+input StreamContentsOptions {
+  """Maximum number of feed items to return (pagination)"""
+  count: Int
+
+  """Continuation token for fetching next page of results"""
+  continuation: String
+
+  """Return only items newer than this timestamp (Unix timestamp)"""
+  newerThan: Int
+
+  """Return only items older than this timestamp (Unix timestamp)"""
+  olderThan: Int
+
+  """Whether to exclude items that have been marked as read"""
+  excludeRead: Boolean
+}
+
+"""Result of applying tags to a FreshRSS item"""
+type SetRssItemTagsResult {
+  """Whether every requested tag was applied"""
+  success: Boolean!
+
+  """Human-readable outcome"""
+  message: String!
+
+  """Failure detail when the operation did not succeed"""
+  error: String
+}
+
+"""Result of removing tags from a FreshRSS item"""
+type RemoveRssItemTagsResult {
+  """Whether every requested tag was removed"""
+  success: Boolean!
+
+  """Human-readable outcome"""
+  message: String!
+
+  """Failure detail when the operation did not succeed"""
+  error: String
+}
+
+"""Result of changing a subscription's longest-article priority"""
+type SetSubscriptionPriorityResult {
+  """Whether the priority was saved and affected groups were updated"""
+  success: Boolean!
+
+  """FreshRSS subscription identifier"""
+  feedId: String!
+
+  """Saved priority value"""
+  priority: Int!
+
+  """Human-readable outcome when available"""
+  message: String
+
+  """Failure detail when the operation did not succeed"""
+  error: String
+}
+
+"""RSS feed subscription with metadata and categorization"""
+type FeedSubscription {
+  """Unique identifier for the subscription"""
+  id: String!
+
+  """Display title of the RSS feed"""
+  title: String!
+
+  """Categories assigned to this subscription"""
+  categories: [TagItem!]!
+
+  """RSS feed URL"""
+  url: String!
+
+  """HTML URL of the source website"""
+  htmlUrl: String!
+
+  """URL of the feed's icon/favicon"""
+  iconUrl: String!
+
+  """Number of unread items in this subscription"""
+  count: Int!
+
+  """Timestamp of the newest item in microseconds"""
+  newestItemTimestampUsec: TimestampMicroseconds
+
+  """
+  Priority used to bias longest-article selection in grouped feeds (0-1000, higher wins; default 0)
+  """
+  priority: Int!
+}
+
+"""Container for all RSS feed subscriptions"""
+type FeedSubscriptionList {
+  """List of all RSS feed subscriptions"""
+  subscriptions: [FeedSubscription!]!
+}
+
+"""Folder/label unread count information"""
+type FolderUnreadCount {
+  """Unique identifier for the folder/label"""
+  id: String!
+
+  """Number of unread items in this folder"""
+  count: Int!
+
+  """Timestamp of the newest item in microseconds"""
+  newestItemTimestampUsec: TimestampMicroseconds
+}
+
+"""Special state unread count information (starred, reading-list, etc.)"""
+type StateUnreadCount {
+  """Unique identifier for the state"""
+  id: String!
+
+  """Number of unread items in this state"""
+  count: Int!
+
+  """Timestamp of the newest item in microseconds"""
+  newestItemTimestampUsec: TimestampMicroseconds
+}
+
+"""Union type for different unread count items"""
+union UnreadCountItem = FeedSubscription | FolderUnreadCount | StateUnreadCount
+
+"""Container for all unread count information"""
+type UnreadCountList {
+  """Maximum number of unread items across all feeds"""
+  max: Int!
+
+  """List of unread count items (feeds, folders, states)"""
+  unreadcounts: [UnreadCountItem!]!
+}
+
+"""Type of RSS tag/category"""
+enum TagType {
+  """Folder type for organizing subscriptions"""
+  FOLDER
+
+  """Tag type for labeling content"""
+  LABEL
+
+  """Predefined tag type"""
+  PREDEFINED
+}
+
+"""Processing setting for RSS folders"""
+enum ProcessingSetting {
+  """Generate daily summary for each feed in the folder"""
+  FEED_DAILY_SUMMARY
+
+  """Generate daily summary for the entire folder"""
+  FOLDER_DAILY_SUMMARY
+
+  """Group similar articles together"""
+  SIMILARITY_GROUPING
+
+  """No special processing (default)"""
+  IGNORED
+}
+
+"""RSS tag folder with associated subscriptions"""
+type TagFolder {
+  """Unique identifier for the tag"""
+  id: String!
+
+  """Display label for the tag"""
+  label: String!
+
+  """Type of the tag (always FOLDER)"""
+  type: TagType!
+
+  """Subscriptions that belong to this folder"""
+  subscriptions: [FeedSubscription!]!
+
+  """Processing setting for this folder (defaults to IGNORED)"""
+  processingSetting: ProcessingSetting!
+}
+
+"""RSS tag label with unread count"""
+type TagLabel {
+  """Unique identifier for the tag"""
+  id: String!
+
+  """Display label for the tag"""
+  label: String!
+
+  """Type of the tag (always LABEL)"""
+  type: TagType!
+
+  """Number of unread items with this tag"""
+  unreadCount: Int
+}
+
+"""RSS predefined tag"""
+type TagPredefined {
+  """Unique identifier for the tag"""
+  id: String!
+
+  """Display label for the tag"""
+  label: String!
+
+  """Type of the tag (always PREDEFINED)"""
+  type: TagType!
+}
+
+"""Union of all tag types"""
+union TagItem = TagFolder | TagLabel | TagPredefined
+
+"""Container for all RSS tags/categories"""
+type TagList {
+  """List of all RSS tags/categories"""
+  tags: [TagItem!]!
+}
+
+"""Input for creating a new FreshRSS server"""
+input CreateFreshRssServerInput {
+  """Human-readable name for the server"""
+  name: String!
+
+  """Base URL of the FreshRSS server"""
+  baseUrl: String!
+
+  """Username for authentication"""
+  username: String!
+
+  """FreshRSS API password for authentication"""
+  apiKey: String!
+
+  """
+  Optional pre-generated authentication token (normally obtained automatically)
+  """
+  authToken: String
+
+  """Tag used to mark processed items"""
+  processedTag: String!
+
+  """Whether RSS processing is enabled for this server"""
+  isProcessingEnabled: Boolean
+
+  """ID of the Qdrant server to associate (optional)"""
+  qdrantServerId: String
+
+  """ID of the Ollama server to associate (optional)"""
+  ollamaServerId: String
+}
+
+"""Input for updating an existing FreshRSS server"""
+input UpdateFreshRssServerInput {
+  """Updated name (optional)"""
+  name: String
+
+  """Updated base URL (optional)"""
+  baseUrl: String
+
+  """Updated username (optional)"""
+  username: String
+
+  """Updated FreshRSS API password (optional)"""
+  apiKey: String
+
+  """Updated authentication token (optional)"""
+  authToken: String
+
+  """Updated processed tag (optional)"""
+  processedTag: String
+
+  """Whether RSS processing is enabled for this server (optional)"""
+  isProcessingEnabled: Boolean
+
+  """ID of the Qdrant server to associate (optional)"""
+  qdrantServerId: String
+
+  """ID of the Ollama server to associate (optional)"""
+  ollamaServerId: String
+}
+
+"""Input for creating a new Ollama server"""
+input CreateOllamaServerInput {
+  """Human-readable name for the server"""
+  name: String!
+
+  """Base URL of the Ollama server"""
+  baseUrl: String!
+
+  """Model name to use on this server"""
+  model: String!
+
+  """API key for authentication (optional)"""
+  apiKey: String
+}
+
+"""Input for updating an existing Ollama server"""
+input UpdateOllamaServerInput {
+  """Updated name (optional)"""
+  name: String
+
+  """Updated base URL (optional)"""
+  baseUrl: String
+
+  """Updated model name (optional)"""
+  model: String
+
+  """Updated API key (optional)"""
+  apiKey: String
+}
+
+"""Input for creating a new Qdrant server"""
+input CreateQdrantServerInput {
+  """Human-readable name for the server"""
+  name: String!
+
+  """URL of the Qdrant server"""
+  url: String!
+
+  """Name of the collection in Qdrant"""
+  collectionName: String!
+
+  """Size of vectors in the collection"""
+  vectorSize: Int!
+
+  """API key for authentication (optional)"""
+  apiKey: String
+}
+
+"""Input for updating an existing Qdrant server"""
+input UpdateQdrantServerInput {
+  """Updated name (optional)"""
+  name: String
+
+  """Updated URL (optional)"""
+  url: String
+
+  """Updated collection name (optional)"""
+  collectionName: String
+
+  """Updated vector size (optional)"""
+  vectorSize: Int
+
+  """Updated API key (optional)"""
+  apiKey: String
+}
+
+"""Input for creating a new post"""
+input CreatePostInput {
+  """Post title"""
+  title: String!
+
+  """Post content body (optional)"""
+  content: String
+
+  """Publication status (defaults to false for draft)"""
+  published: Boolean! = false
+}
+
+"""Input for updating an existing post"""
+input UpdatePostInput {
+  """Updated post title (optional)"""
+  title: String
+
+  """Updated post content (optional)"""
+  content: String
+
+  """Updated publication status (optional)"""
+  published: Boolean
+}
+
+"""Input for filtering FreshRSS servers"""
+input GetFreshRssServersInput {
+  """Filter by server source (optional)"""
+  source: ServerSource
+}
+
+"""Service status enumeration"""
+enum ServiceStatus {
+  """Service is currently initializing"""
+  INITIALIZING
+
+  """Service is ready and operational"""
+  READY
+
+  """Service has failed to initialize or encountered an error"""
+  FAILED
+}
+
+"""Detailed service status information"""
+type ServiceStatusDetails {
+  """Current status of the service"""
+  status: ServiceStatus!
+
+  """Step that failed during initialization (if applicable)"""
+  failedStep: String
+
+  """Error message if the service failed"""
+  errorMessage: String
+
+  """Additional error details (JSON string)"""
+  errorDetails: String
+
+  """ISO 8601 timestamp when the status was last updated"""
+  lastUpdated: String!
+}
+
+"""Result of setting RSS tag processing setting"""
+type SetRssTagProcessingResult {
+  """Whether the operation was successful"""
+  success: Boolean!
+
+  """Human-readable message about the operation result"""
+  message: String!
+
+  """Error message if the operation failed (optional)"""
+  error: String
+
+  """The folder ID that was updated (optional)"""
+  folderId: String
+}
+
+"""Source of the server configuration"""
+enum ServerSource {
+  """Server configuration stored in database"""
+  DATABASE
+
+  """Server configuration from environment variables"""
+  ENVIRONMENT
+}
+
+"""FreshRSS server entity for managing RSS server configurations"""
+type FreshRssServer {
+  """Unique server identifier (federated key)"""
+  id: ID!
+
+  """Human-readable name for the server"""
+  name: String!
+
+  """Base URL of the FreshRSS server"""
+  baseUrl: String!
+
+  """Username for authentication"""
+  username: String!
+
+  """FreshRSS API password for authentication"""
+  apiKey: String!
+
+  """Optional pre-generated authentication token"""
+  authToken: String!
+
+  """Tag used to mark processed items"""
+  processedTag: String!
+
+  """Whether RSS processing is enabled for this server"""
+  isProcessingEnabled: Boolean!
+
+  """Source of the server configuration"""
+  source: ServerSource!
+
+  """Associated Qdrant server for vector storage (optional)"""
+  qdrantServer: QdrantServer
+
+  """Associated Ollama server for AI processing (optional)"""
+  ollamaServer: OllamaServer
+
+  """Current status of the FreshRSS service"""
+  status: ServiceStatusDetails
+
+  """ISO 8601 timestamp when the server was created"""
+  createdAt: String
+
+  """ISO 8601 timestamp when the server was last updated"""
+  updatedAt: String
+}
+
+"""Ollama server entity for managing Ollama AI model servers"""
+type OllamaServer {
+  """Unique server identifier (federated key)"""
+  id: ID!
+
+  """Human-readable name for the server"""
+  name: String!
+
+  """Base URL of the Ollama server"""
+  baseUrl: String!
+
+  """Model name to use on this server"""
+  model: String!
+
+  """API key for authentication (optional)"""
+  apiKey: String
+
+  """Source of the server configuration"""
+  source: ServerSource!
+
+  """List of available models from the Ollama server"""
+  models: [OllamaModel!]
+
+  """ISO 8601 timestamp when the server was created"""
+  createdAt: String
+
+  """ISO 8601 timestamp when the server was last updated"""
+  updatedAt: String
+}
+
+"""Ollama model information"""
+type OllamaModel {
+  """Model name"""
+  name: String!
+
+  """Model identifier"""
+  model: String!
+
+  """ISO 8601 timestamp when the model was last modified"""
+  modifiedAt: String!
+
+  """Model size in bytes"""
+  size: Float!
+
+  """Model digest/hash"""
+  digest: String!
+
+  """Detailed model information"""
+  details: OllamaModelDetails!
+}
+
+"""Result of a test embedding request against an Ollama server"""
+type OllamaEmbeddingTestResult {
+  """Number of dimensions in the embedding vector"""
+  dimensions: Int!
+
+  """The generated embedding vector"""
+  embedding: [Float!]!
+
+  """The model used to generate the embedding"""
+  model: String!
+}
+
+"""Detailed Ollama model information"""
+type OllamaModelDetails {
+  """Parent model name"""
+  parentModel: String!
+
+  """Model format (e.g., gguf)"""
+  format: String!
+
+  """Model family (e.g., llama)"""
+  family: String!
+
+  """Model families list"""
+  families: [String!]
+
+  """Parameter size (e.g., 8.0B)"""
+  parameterSize: String!
+
+  """Quantization level (e.g., Q4_K_M)"""
+  quantizationLevel: String!
+}
+
+"""Qdrant server entity for managing Qdrant vector database servers"""
+type QdrantServer {
+  """Unique server identifier (federated key)"""
+  id: ID!
+
+  """Human-readable name for the server"""
+  name: String!
+
+  """URL of the Qdrant server"""
+  url: String!
+
+  """Name of the collection in Qdrant"""
+  collectionName: String!
+
+  """Size of vectors in the collection"""
+  vectorSize: Int!
+
+  """API key for authentication (optional)"""
+  apiKey: String
+
+  """Source of the server configuration"""
+  source: ServerSource!
+
+  """Comprehensive information about the vector collection"""
+  collectionInfo: CollectionInfo
+
+  """ISO 8601 timestamp when the server was created"""
+  createdAt: String
+
+  """ISO 8601 timestamp when the server was last updated"""
+  updatedAt: String
+}
+
+"""
+Post entity representing a blog post or article with federation support
+"""
+type Post {
+  """Unique post identifier (federated key)"""
+  id: ID!
+
+  """Post title"""
+  title: String!
+
+  """Post content body (optional, can be null for drafts)"""
+  content: String
+
+  """Whether the post is published and publicly visible"""
+  published: Boolean!
+
+  """ISO 8601 timestamp when the post was created"""
+  createdAt: String!
+
+  """ISO 8601 timestamp when the post was last updated"""
+  updatedAt: String!
+}
+
+"""Unix timestamp represented as seconds since the Unix epoch"""
+scalar Timestamp
+
+"""General search result with basic content and metadata"""
+type SearchResult {
+  """The content of the matching document"""
+  content: String!
+
+  """Similarity score (0.0 to 1.0, higher is more similar)"""
+  score: Float
+
+  """JSON metadata associated with the document"""
+  metadata: String
+}
+
+"""Feed item search result with detailed RSS metadata"""
+type FeedItemSearchResult {
+  """The content of the matching feed item"""
+  content: String!
+
+  """Similarity score (0.0 to 1.0, higher is more similar)"""
+  score: Float
+
+  """Structured metadata specific to RSS feed items"""
+  metadata: DocumentMetadata!
+}
+
+"""Detailed metadata for RSS feed items in search results"""
+type DocumentMetadata {
+  """Unique identifier of the feed item"""
+  id: String!
+
+  """Title of the feed item"""
+  title: String!
+
+  """URL/link of the feed item"""
+  url: String!
+
+  """Publication timestamp (Unix timestamp)"""
+  published: Timestamp!
+
+  """Day of publication (Unix timestamp, day precision)"""
+  dayPublished: Timestamp!
+
+  """Author of the feed item"""
+  author: String
+
+  """Title of the RSS feed containing this item"""
+  feedTitle: String!
+
+  """Unique identifier of the RSS feed"""
+  feedId: String!
+
+  """Array of categories/tags"""
+  categories: [String!]!
+
+  """Source identifier or name"""
+  source: String!
+
+  """Crawl time in milliseconds"""
+  crawlTimeMsec: TimestampMilliseconds!
+
+  """Timestamp in microseconds"""
+  timestampUsec: TimestampMicroseconds!
+
+  """Canonical URLs"""
+  canonical: [LinkMetadata!]
+
+  """Alternate URLs"""
+  alternate: [LinkMetadata!]
+
+  """Origin information"""
+  origin: OriginMetadata!
+
+  """Summary content"""
+  summary: SummaryMetadata
+
+  """Enclosure information"""
+  enclosure: [EnclosureMetadata!]
+}
+
+"""Link metadata for canonical and alternate URLs"""
+type LinkMetadata {
+  """URL href"""
+  href: String!
+}
+
+"""Origin metadata containing stream information"""
+type OriginMetadata {
+  """Stream identifier"""
+  streamId: String!
+
+  """HTML URL of the stream"""
+  htmlUrl: String!
+
+  """Title of the stream"""
+  title: String!
+}
+
+"""Summary metadata containing content"""
+type SummaryMetadata {
+  """Summary content"""
+  content: String!
+}
+
+"""Enclosure metadata for media attachments"""
+type EnclosureMetadata {
+  """Enclosure URL"""
+  href: String!
+
+  """MIME type of the enclosure"""
+  type: String!
+
+  """Length of the enclosure in bytes"""
+  length: Float
+}
+
+"""Comprehensive collection information"""
+type CollectionInfo {
+  """Collection status indicator"""
+  status: CollectionStatus!
+
+  """Optimizer status"""
+  optimizerStatus: OptimizerStatus!
+
+  """Total number of vectors in the collection"""
+  vectorsCount: Int
+
+  """Number of indexed vectors"""
+  indexedVectorsCount: Int
+
+  """Total number of points in the collection"""
+  pointsCount: Int
+
+  """Number of segments in the collection"""
+  segmentsCount: Int!
+
+  """Collection configuration"""
+  config: CollectionConfig!
+
+  """Payload schema definition"""
+  payloadSchema: [PayloadSchemaField!]!
+}
+
+"""Collection status values"""
+enum CollectionStatus {
+  """Collection is healthy and fully operational"""
+  GREEN
+
+  """Collection is operational with warnings"""
+  YELLOW
+
+  """Collection status is unknown or unavailable"""
+  GREY
+
+  """Collection has an error status"""
+  RED
+}
+
+"""Optimizer status"""
+union OptimizerStatus = OptimizerStatusOk | OptimizerStatusError
+
+"""Optimizer status when ok"""
+type OptimizerStatusOk {
+  """Literal ok status returned by Qdrant"""
+  status: String!
+}
+
+"""Optimizer status when there's an error"""
+type OptimizerStatusError {
+  """Optimizer error reported by Qdrant"""
+  error: String!
+}
+
+"""Collection configuration"""
+type CollectionConfig {
+  """Collection parameters"""
+  params: CollectionParams!
+
+  """HNSW configuration"""
+  hnswConfig: HnswConfig!
+
+  """Optimizer configuration"""
+  optimizerConfig: OptimizerConfig!
+
+  """WAL configuration"""
+  walConfig: WalConfig
+
+  """Quantization configuration"""
+  quantizationConfig: QuantizationConfig
+
+  """Strict mode configuration"""
+  strictModeConfig: StrictModeConfig
+}
+
+"""Collection parameters"""
+type CollectionParams {
+  """Vector configuration"""
+  vectors: VectorConfigInfo
+
+  """Number of shards"""
+  shardNumber: Int
+
+  """Sharding method"""
+  shardingMethod: String
+
+  """Replication factor"""
+  replicationFactor: Int
+
+  """Write consistency factor"""
+  writeConsistencyFactor: Int
+
+  """Read fan out factor"""
+  readFanOutFactor: Int
+
+  """Whether payload is stored on disk"""
+  onDiskPayload: Boolean
+
+  """Sparse vectors configuration"""
+  sparseVectors: [SparseVectorConfigInfo!]
+}
+
+"""Vector configuration information"""
+type VectorConfigInfo {
+  """Vector size"""
+  size: Int!
+
+  """Distance metric"""
+  distance: DistanceMetric!
+
+  """HNSW configuration for this vector"""
+  hnswConfig: VectorHnswConfig
+
+  """Quantization configuration for this vector"""
+  quantizationConfig: QuantizationConfig
+
+  """Whether vectors are stored on disk"""
+  onDisk: Boolean
+
+  """Vector data type"""
+  datatype: VectorDataType
+
+  """Multivector configuration"""
+  multivectorConfig: MultivectorConfig
+}
+
+"""Distance metrics"""
+enum DistanceMetric {
+  """Cosine similarity distance"""
+  COSINE
+
+  """Euclidean distance"""
+  EUCLID
+
+  """Dot product distance"""
+  DOT
+
+  """Manhattan distance"""
+  MANHATTAN
+}
+
+"""Vector data types"""
+enum VectorDataType {
+  """32-bit floating point vectors"""
+  FLOAT32
+
+  """8-bit unsigned integer vectors"""
+  UINT8
+
+  """16-bit floating point vectors"""
+  FLOAT16
+}
+
+"""Vector-specific HNSW configuration"""
+type VectorHnswConfig {
+  """Number of connections"""
+  m: Int
+
+  """EF construct parameter"""
+  efConstruct: Int
+
+  """Full scan threshold"""
+  fullScanThreshold: Int
+
+  """Maximum indexing threads"""
+  maxIndexingThreads: Int
+
+  """Whether index is stored on disk"""
+  onDisk: Boolean
+
+  """Payload M parameter"""
+  payloadM: Int
+}
+
+"""Multivector configuration"""
+type MultivectorConfig {
+  """Comparator method"""
+  comparator: String!
+}
+
+"""HNSW algorithm configuration"""
+type HnswConfig {
+  """Number of connections"""
+  m: Int!
+
+  """EF construct parameter"""
+  efConstruct: Int!
+
+  """Full scan threshold"""
+  fullScanThreshold: Int!
+
+  """Maximum indexing threads"""
+  maxIndexingThreads: Int
+
+  """Whether index is stored on disk"""
+  onDisk: Boolean
+
+  """Payload M parameter"""
+  payloadM: Int
+}
+
+"""Optimizer configuration"""
+type OptimizerConfig {
+  """Deleted threshold"""
+  deletedThreshold: Float!
+
+  """Vacuum minimum vector number"""
+  vacuumMinVectorNumber: Int!
+
+  """Default segment number"""
+  defaultSegmentNumber: Int!
+
+  """Maximum segment size"""
+  maxSegmentSize: Int
+
+  """Memory map threshold"""
+  memmapThreshold: Int
+
+  """Indexing threshold"""
+  indexingThreshold: Int
+
+  """Flush interval in seconds"""
+  flushIntervalSec: Int!
+
+  """Maximum optimization threads"""
+  maxOptimizationThreads: Int
+}
+
+"""WAL configuration"""
+type WalConfig {
+  """WAL capacity in MB"""
+  walCapacityMb: Int!
+
+  """WAL segments ahead"""
+  walSegmentsAhead: Int!
+}
+
+"""Quantization configuration"""
+type QuantizationConfig {
+  """Scalar quantization"""
+  scalar: ScalarQuantization
+
+  """Product quantization"""
+  product: ProductQuantization
+
+  """Binary quantization"""
+  binary: BinaryQuantization
+}
+
+"""Scalar quantization configuration"""
+type ScalarQuantization {
+  """Quantization type"""
+  type: String!
+
+  """Quantile value"""
+  quantile: Float
+
+  """Always in RAM"""
+  alwaysRam: Boolean
+}
+
+"""Product quantization configuration"""
+type ProductQuantization {
+  """Compression ratio"""
+  compression: String!
+
+  """Always in RAM"""
+  alwaysRam: Boolean
+}
+
+"""Binary quantization configuration"""
+type BinaryQuantization {
+  """Always in RAM"""
+  alwaysRam: Boolean
+}
+
+"""Strict mode configuration"""
+type StrictModeConfig {
+  """Whether strict mode is enabled"""
+  enabled: Boolean
+
+  """Maximum query limit"""
+  maxQueryLimit: Int
+
+  """Maximum timeout"""
+  maxTimeout: Int
+
+  """Unindexed filtering retrieve"""
+  unindexedFilteringRetrieve: Boolean
+
+  """Unindexed filtering update"""
+  unindexedFilteringUpdate: Boolean
+
+  """Search maximum HNSW EF"""
+  searchMaxHnswEf: Int
+
+  """Search allow exact"""
+  searchAllowExact: Boolean
+
+  """Search maximum oversampling"""
+  searchMaxOversampling: Int
+
+  """Upsert maximum batch size"""
+  upsertMaxBatchsize: Int
+
+  """Maximum collection vector size in bytes"""
+  maxCollectionVectorSizeBytes: Int
+
+  """Read rate limit"""
+  readRateLimit: Int
+
+  """Write rate limit"""
+  writeRateLimit: Int
+
+  """Maximum collection payload size in bytes"""
+  maxCollectionPayloadSizeBytes: Int
+
+  """Maximum points count"""
+  maxPointsCount: Int
+
+  """Filter maximum conditions"""
+  filterMaxConditions: Int
+
+  """Condition maximum size"""
+  conditionMaxSize: Int
+
+  """Multivector configuration"""
+  multivectorConfig: [StrictMultivectorConfigInfo!]
+
+  """Sparse configuration"""
+  sparseConfig: [StrictSparseConfigInfo!]
+}
+
+"""Strict multivector configuration"""
+type StrictMultivectorConfigInfo {
+  """Vector name"""
+  name: String!
+
+  """Maximum vectors"""
+  maxVectors: Int
+}
+
+"""Strict sparse configuration"""
+type StrictSparseConfigInfo {
+  """Vector name"""
+  name: String!
+
+  """Maximum length"""
+  maxLength: Int
+}
+
+"""Sparse vector configuration"""
+type SparseVectorConfigInfo {
+  """Vector name"""
+  name: String!
+
+  """Index configuration"""
+  index: SparseVectorIndex
+
+  """Modifier"""
+  modifier: String
+}
+
+"""Sparse vector index configuration"""
+type SparseVectorIndex {
+  """Full scan threshold"""
+  fullScanThreshold: Int
+
+  """Whether stored on disk"""
+  onDisk: Boolean
+
+  """Data type"""
+  datatype: VectorDataType
+}
+
+"""Payload schema field"""
+type PayloadSchemaField {
+  """Field name"""
+  name: String!
+
+  """Data type"""
+  dataType: PayloadDataType!
+
+  """Field parameters"""
+  params: PayloadFieldParams
+
+  """Number of points with this field"""
+  points: Int!
+}
+
+"""Payload data types"""
+enum PayloadDataType {
+  """Keyword payload value"""
+  KEYWORD
+
+  """Integer payload value"""
+  INTEGER
+
+  """Floating point payload value"""
+  FLOAT
+
+  """Geographic payload value"""
+  GEO
+
+  """Text payload value"""
+  TEXT
+
+  """Boolean payload value"""
+  BOOL
+
+  """Datetime payload value"""
+  DATETIME
+
+  """UUID payload value"""
+  UUID
+}
+
+"""Payload field parameters"""
+type PayloadFieldParams {
+  """Field type"""
+  type: PayloadDataType!
+
+  """Is tenant field"""
+  isTenant: Boolean
+
+  """Stored on disk"""
+  onDisk: Boolean
+
+  """Lookup enabled"""
+  lookup: Boolean
+
+  """Range enabled"""
+  range: Boolean
+
+  """Is principal field"""
+  isPrincipal: Boolean
+
+  """Text tokenizer"""
+  tokenizer: String
+
+  """Minimum token length"""
+  minTokenLen: Int
+
+  """Maximum token length"""
+  maxTokenLen: Int
+
+  """Lowercase enabled"""
+  lowercase: Boolean
+}
+
+"""A vector point in a Qdrant collection"""
+type QdrantPoint {
+  """Unique identifier of the point"""
+  id: String!
+
+  """JSON-serialized payload data"""
+  payload: String
+}
+
+"""Paginated result of scrolling through vector points"""
+type ScrollPointsResult {
+  """List of vector points"""
+  points: [QdrantPoint!]!
+
+  """Offset for the next page, null if no more results"""
+  nextOffset: String
+}
+
+"""Result of searching vector points by ID or title"""
+type SearchPointsResult {
+  """List of matching vector points"""
+  points: [QdrantPoint!]!
+}
+
+"""Current status and state of the RSS feed processor"""
+type RssProcessorStatus {
+  """Whether the RSS processor service is running"""
+  isRunning: Boolean!
+
+  """Whether the processor is currently processing feeds"""
+  isProcessing: Boolean!
+
+  """Whether the processor is in the process of cancelling"""
+  isCancelling: Boolean!
+
+  """ISO 8601 timestamp of the next scheduled processing run"""
+  nextRun: String
+
+  """Whether subscription processing is currently active"""
+  isSubscriptionProcessing: Boolean
+
+  """Index of the currently processing subscription (0-based)"""
+  currentSubscriptionIndex: Int
+
+  """Total number of subscriptions to process"""
+  totalSubscriptions: Int
+
+  """Title of the subscription currently being processed"""
+  currentSubscriptionTitle: String
+}
+
+"""Result of manual RSS feed processing request"""
+type ProcessRssFeedsResult {
+  """Whether the processing request was successful"""
+  success: Boolean!
+
+  """Human-readable message describing the result"""
+  message: String!
+
+  """Whether processing was already in progress when requested"""
+  alreadyInProgress: Boolean!
+}
+
+"""Result of RSS feed processing cancellation request"""
+type CancelRssProcessingResult {
+  """Whether the cancellation request was successful"""
+  success: Boolean!
+
+  """Human-readable message describing the result"""
+  message: String!
+
+  """
+  Whether processing was actually running when cancellation was requested
+  """
+  wasProcessing: Boolean!
+}
+
+"""System setup status information"""
+type SetupStatus {
+  """Whether the system requires initial setup (no users exist)"""
+  setupRequired: Boolean!
+
+  """Whether any users exist in the system"""
+  hasUsers: Boolean!
+}
+
+"""Input for creating the first administrator user"""
+input CreateFirstAdminUserInput {
+  """Administrator's display name"""
+  name: String!
+
+  """Administrator's email address (must be unique)"""
+  email: String!
+
+  """Administrator's password (will be hashed before storage)"""
+  password: String!
+}
+
+"""Result of first admin user creation"""
+type CreateFirstAdminUserResult {
+  """Whether the admin user creation was successful"""
+  success: Boolean!
+
+  """Human-readable message describing the result"""
+  message: String!
+
+  """The created admin user object (null if creation failed)"""
+  user: User
+
+  """Error message if creation failed (null if successful)"""
+  error: String
+}
+
+"""Sorting options for article groups"""
+enum ArticleGroupSortBy {
+  """Sort by newest first (default)"""
+  DATE_DESC
+
+  """Sort by oldest first"""
+  DATE_ASC
+
+  """Sort by number of similar articles (most first)"""
+  SIMILAR_COUNT
+}
+
+"""Configuration settings for similarity grouping on a folder"""
+type FolderGroupingSettings {
+  """Folder ID"""
+  folderId: String!
+
+  """Server ID"""
+  serverId: String!
+
+  """Minimum cosine similarity threshold (0.0-1.0)"""
+  similarityThreshold: Float!
+
+  """Time window in hours to look for similar articles"""
+  timeWindowHours: Int!
+
+  """Delay in minutes before publishing to allow grouping"""
+  publishDelayMinutes: Int!
+
+  """Maximum article age in days for reprocessing (1-3650; null = no limit)"""
+  lookbackDays: Int
+}
+
+"""A group of similar articles"""
+type ArticleGroup {
+  """Unique group ID"""
+  id: String!
+
+  """Folder this group belongs to"""
+  folderId: String!
+
+  """Server ID for this group"""
+  serverId: String!
+
+  """Primary article Qdrant document ID (earliest published)"""
+  primaryItemId: String!
+
+  """Primary article FreshRSS item ID for reference"""
+  primaryItemFreshRssId: String!
+
+  """Primary article (earliest published) with full details"""
+  primaryItem: FeedItemSearchResult
+
+  """
+  Longest-body article Qdrant document ID (the displayed main article); null until computed
+  """
+  longestItemId: String
+
+  """
+  Longest-body article FreshRSS item ID for reference; null until computed
+  """
+  longestItemFreshRssId: String
+
+  """Longest-body article (the displayed main) with full details"""
+  longestItem: FeedItemSearchResult
+
+  """
+  The group's other articles (everything except the displayed main), each with both scores
+  """
+  members: [ArticleGroupMember!]!
+
+  """When the group was created (ISO 8601 timestamp)"""
+  createdAt: String!
+
+  """When the group was last updated (ISO 8601 timestamp)"""
+  updatedAt: String!
+}
+
+"""A member of an article group"""
+type ArticleGroupMember {
+  """Unique member ID"""
+  id: String!
+
+  """Qdrant document ID"""
+  itemId: String!
+
+  """FreshRSS item ID for reference"""
+  itemFreshRssId: String!
+
+  """Full article details from Qdrant"""
+  item: FeedItemSearchResult
+
+  """
+  Cosine similarity to the primary (earliest) article (0.0-1.0); the primary itself is 1.0
+  """
+  primaryScore: Float!
+
+  """
+  Cosine similarity to the longest-body article (0.0-1.0); the longest itself is 1.0. The default score to display.
+  """
+  longestScore: Float!
+
+  """
+  Deprecated alias of primaryScore (similarity to the primary article), kept for backward compatibility
+  """
+  similarityScore: Float!
+
+  """When the member was added (ISO 8601 timestamp)"""
+  createdAt: String!
+}
+
+"""Result of a grouping operation"""
+type GroupingResult {
+  """Whether the operation succeeded"""
+  success: Boolean!
+
+  """Human-readable message"""
+  message: String!
+
+  """Number of folders processed"""
+  foldersProcessed: Int!
+
+  """Number of new groups created"""
+  groupsCreated: Int!
+
+  """Number of existing groups updated"""
+  groupsUpdated: Int!
+
+  """Total articles that were grouped"""
+  articlesGrouped: Int!
+}
+
+"""Per-folder result of cleanup operation"""
+type FolderCleanupResult {
+  """Folder ID that was cleaned up"""
+  folderId: String!
+
+  """Number of expired groups deleted"""
+  deletedCount: Int!
+}
+
+"""Result of a cleanup operation across folders"""
+type CleanupResult {
+  """Whether the operation succeeded"""
+  success: Boolean!
+
+  """Human-readable message"""
+  message: String!
+
+  """Total number of folders processed"""
+  foldersProcessed: Int!
+
+  """Total number of expired groups deleted"""
+  totalDeleted: Int!
+
+  """Cleanup results per folder"""
+  folderResults: [FolderCleanupResult!]!
+}
+
+"""One UTC publication day in the similar-article statistics series"""
+type SimilarityStatisticsPoint {
+  """UTC date in YYYY-MM-DD format"""
+  date: String!
+
+  """Number of non-primary articles matched on this publication day"""
+  matchCount: Int!
+
+  """Running total beginning at the selected range start"""
+  cumulativeCount: Int!
+}
+
+"""Aggregated similar-article match history"""
+type SimilarityStatistics {
+  """Total matches in the selected range"""
+  totalMatches: Int!
+
+  """Average matches per calendar day, including zero-count days"""
+  averagePerDay: Float!
+
+  """Earliest day tied for the highest daily match count"""
+  peakDay: String
+
+  """Highest number of matches on one day"""
+  peakCount: Int!
+
+  """
+  Resolved inclusive range start, or null when no all-time history exists
+  """
+  rangeStart: String
+
+  """Resolved inclusive range end, or null when no all-time history exists"""
+  rangeEnd: String
+
+  """Daily statistics with missing dates filled with zeroes"""
+  points: [SimilarityStatisticsPoint!]!
+}
+
+"""Input for creating a new user account"""
+input CreateUserInput {
+  """User's display name"""
+  name: String!
+
+  """User's email address (must be unique)"""
+  email: String!
+
+  """User's password (will be hashed before storage)"""
+  password: String!
+
+  """Initial role assignment for the user"""
+  role: Role!
+}
+
+"""Input for updating a user's role"""
+input UpdateUserRoleInput {
+  """ID of the user whose role should be updated"""
+  userId: String!
+
+  """New role to assign to the user"""
+  role: Role!
+}
+
+"""Input for updating the current user's profile"""
+input UpdateMeInput {
+  """New email address (optional)"""
+  email: String
+
+  """New password (optional)"""
+  newPassword: String
+
+  """Current password (required for verification)"""
+  currentPassword: String!
+}
+
+"""User role enumeration defining permission levels in the system"""
+enum Role {
+  """Administrator with full system access and user management privileges"""
+  ADMIN
+
+  """Regular user with standard content creation and modification rights"""
+  REGULAR
+
+  """Read-only user with view access to public content only"""
+  READ_ONLY
+}
+
+"""
+User entity representing a system user with authentication and role information
+"""
+type User {
+  """Unique user identifier"""
+  id: String!
+
+  """User's display name (optional)"""
+  name: String
+
+  """User's email address (unique, required for authentication)"""
+  email: String!
+
+  """User's role determining their permission level"""
+  role: Role!
+
+  """Timestamp when the user account was created"""
+  createdAt: String!
+
+  """Timestamp when the user account was last updated"""
+  updatedAt: String!
+}
+
+"""Result of user creation operation"""
+type CreateUserResult {
+  """Whether the user creation was successful"""
+  success: Boolean!
+
+  """Human-readable message describing the result"""
+  message: String!
+
+  """The created user object (null if creation failed)"""
+  user: User
+}
+
+"""Result of user role update operation"""
+type UpdateUserRoleResult {
+  """Whether the role update was successful"""
+  success: Boolean!
+
+  """Human-readable message describing the result"""
+  message: String!
+
+  """The updated user object (null if update failed)"""
+  user: User
+}
+
+"""Result of user deletion operation"""
+type DeleteUserResult {
+  """Whether the user deletion was successful"""
+  success: Boolean!
+
+  """Human-readable message describing the result"""
+  message: String!
+}
+
+"""Protected data accessible only to authenticated users"""
+type ProtectedDataResult {
+  """Message confirming access to protected data"""
+  message: String!
+
+  """Timestamp when the data was accessed"""
+  timestamp: String!
+
+  """Information about the accessing user"""
+  user: User
+}
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+scalar link__Import
+
+scalar _FieldSet
+
+scalar _Any
+
+type _Service {
+  sdl: String
+}
+
+union _Entity = ArticleGroup | DocumentMetadata | FeedItem | FeedSubscription | FolderUnreadCount | FreshRssServer | OllamaServer | Post | QdrantServer | StateUnreadCount | TagFolder | TagLabel | TagPredefined | User

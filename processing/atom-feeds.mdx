@@ -1,0 +1,39 @@
+---
+title: Grouped Atom feeds
+description: Publish grouped article results as consumable Atom feeds.
+---
+
+<Frame caption="Grouped Atom feeds">
+  <img className="block dark:hidden" src="/images/light/atom-feeds.png" alt="Grouped Atom feeds in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/atom-feeds.png" alt="Grouped Atom feeds in the dark theme" />
+</Frame>
+
+## Purpose
+
+Grouped Atom feeds expose one curated entry per similarity group so downstream feed readers receive consolidated coverage rather than every duplicate article.
+
+## Prerequisites and permissions
+
+The folder must have similarity grouping enabled and contain processed groups. Users must be signed in to manage feed settings; consuming a generated feed depends on the deployment's endpoint policy.
+
+## Normal workflow
+
+1. Search for the desired folder.
+2. Set the output limit when available.
+3. Copy the Atom URL into a feed client, open it directly, or use the built-in preview.
+4. Verify primary and longest-item selection before distributing the URL.
+
+## Important controls and behavior
+
+- The feed is generated from current groups and changes as new content is processed.
+- The Atom generator identity is **Processor**.
+- Output limits bound recent entries; they do not delete stored groups.
+- Copy, open, and preview operate on the same canonical feed URL.
+
+## Failure states
+
+An empty feed means no eligible groups exist for the folder or processing has not completed. Invalid XML or missing entries should be reproduced through [feed preview](/processing/feed-preview) and checked against application logs.
+
+## Operational notes
+
+Treat feed URLs as integration endpoints. Preserve the deployment hostname and authentication behavior during migrations, and notify consumers before changing a folder's grouping policy.

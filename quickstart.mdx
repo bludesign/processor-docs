@@ -1,47 +1,54 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Run Processor, create the first administrator, and connect FreshRSS, Ollama, and Qdrant."
 ---
-
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
 
 ## Prerequisites
 
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+You need Node.js 24.16 or newer, a FreshRSS instance with Google Reader API access, an Ollama server with an embedding model, and a Qdrant server. Processor stores its own configuration and grouping state in SQLite.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
+  <Step title="Install dependencies">
     ```bash
-    npm install your-package
+    git clone https://github.com/bludesign/processor.git
+    cd processor
+    npm ci
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
-
+  <Step title="Create local configuration">
     ```bash
-    your-cli init
+    cp .env.example .env
+    openssl rand -base64 32
     ```
+
+    Put the generated value in `NEXTAUTH_SECRET`. Set `DATABASE_URL`, `NEXTAUTH_URL`, and the FreshRSS, Ollama, and Qdrant variables described in [Environment variables](/reference/environment-variables).
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
+  <Step title="Start Processor">
     ```bash
-    your-cli start
+    npm run dev
     ```
+
+    Open `http://localhost:3000`. Processor redirects a new database to the setup page.
+  </Step>
+  <Step title="Create the first administrator">
+    Enter a name, email address, and password. The setup mutation works only while the user table is empty. After it succeeds, sign in with the account you created.
+  </Step>
+  <Step title="Connect services">
+    Open **Ollama Servers** and **Qdrant Servers** first, then add a **FreshRSS Server** that selects both. Environment-backed services appear automatically when their required variables are set.
+  </Step>
+  <Step title="Process subscriptions">
+    Open the dashboard, select the FreshRSS server, and click **Process Feeds**. Use **Processor Status** for live stage-by-stage activity and **Feed Items** or **Article Groups** to inspect the result.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Docker Compose
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+```bash
+docker compose up --build
+```
+
+The included Compose file persists SQLite at `/processor/dev.db`. Supply production secrets and reachable service URLs before exposing the application outside your machine.
+
+<Warning>
+  Keep `NEXTAUTH_SECRET`, `GROUPED_FEED_SECRET`, and `WEBSUB_ENCRYPTION_KEY` stable. Rotating them invalidates sessions, signed feed URLs, or encrypted subscriber secrets respectively.
+</Warning>

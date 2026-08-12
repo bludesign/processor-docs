@@ -1,0 +1,39 @@
+---
+title: Subscriptions
+description: Browse synchronized FreshRSS subscriptions and tune source priority.
+---
+
+<Frame caption="Subscriptions">
+  <img className="block dark:hidden" src="/images/light/subscriptions.png" alt="Subscriptions in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/subscriptions.png" alt="Subscriptions in the dark theme" />
+</Frame>
+
+## Purpose
+
+Subscriptions exposes the feeds synchronized from FreshRSS and the per-source priority used when Processor chooses a primary article from a similarity group.
+
+## Prerequisites and permissions
+
+An enabled FreshRSS server must have completed at least one synchronization. Authenticated users can inspect subscriptions; changing operational settings may require administrator access.
+
+## Normal workflow
+
+1. Search by feed title or narrow the list by category.
+2. Open a subscription to verify its upstream identity and recent activity.
+3. Assign a priority from `0` through `1000` when one source should outrank another.
+4. Run processing again for the new priority to affect future primary-article selection.
+
+## Important controls and behavior
+
+- Higher priority wins when otherwise similar articles compete to be the primary item.
+- Priority does not change similarity scores, fetch order, or FreshRSS subscription state.
+- Search and category filters affect the current view only.
+- Subscription identity remains tied to the upstream FreshRSS record.
+
+## Failure states
+
+A missing feed usually indicates it was not returned by the configured FreshRSS account or synchronization has not completed. A saved priority cannot repair unreachable feed content or missing item bodies.
+
+## Operational notes
+
+Use priority sparingly and document large differences. Excessive priority bias can consistently select a shorter or less complete article even when grouping itself is correct.

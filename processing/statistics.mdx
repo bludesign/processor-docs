@@ -1,0 +1,38 @@
+---
+title: Statistics
+description: Analyze processing and content activity over configurable date ranges.
+---
+
+<Frame caption="Statistics">
+  <img className="block dark:hidden" src="/images/light/statistics.png" alt="Statistics in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/statistics.png" alt="Statistics in the dark theme" />
+</Frame>
+
+## Purpose
+
+Statistics summarizes item and grouping activity for capacity planning, trend checks, and detecting abnormal processing volume.
+
+## Prerequisites and permissions
+
+Processor must contain historical items. Authenticated users can view aggregate statistics.
+
+## Normal workflow
+
+1. Select a folder or the aggregate view.
+2. Choose `7`, `30`, `90`, or `365` days, or the full retained history.
+3. Review totals, averages, peaks, charts, and the underlying table.
+4. Compare anomalies with processing status and service logs for the same UTC period.
+
+## Important controls and behavior
+
+- Date buckets use UTC, which can differ from a publisher's or operator's local calendar day.
+- Range controls recalculate the displayed aggregation without changing retained data.
+- Peaks identify volume, not necessarily failures or slow processing.
+
+## Failure states
+
+Empty ranges are valid when no items fall inside the selected dates. Sudden drops can originate from upstream publication patterns, disabled folder processing, failed synchronization, or changed lookback settings.
+
+## Operational notes
+
+Record both the selected folder and UTC range when sharing a chart. Use infrastructure monitoring for CPU, memory, and request latency; this page reports application-domain activity.

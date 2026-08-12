@@ -1,34 +1,106 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Processor",
+  "description": "Self-hosted RSS processing, semantic grouping, and grouped Atom feed publishing.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0F172A",
+    "light": "#94A3B8",
+    "dark": "#64748B"
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting started",
+            "icon": "rocket",
+            "pages": ["index", "quickstart", "screenshots"]
+          },
+          {
+            "group": "Dashboard and processing",
+            "icon": "gauge",
+            "pages": [
+              "dashboard",
+              "processing/processor-status",
+              "processing/subscriptions",
+              "processing/folders",
+              "processing/folder-debug",
+              "processing/feed-items",
+              "processing/feed-item-detail",
+              "processing/article-groups",
+              "processing/atom-feeds",
+              "processing/feed-preview",
+              "processing/feed-preview-detail",
+              "processing/statistics"
+            ]
+          },
+          {
+            "group": "Services and integrations",
+            "icon": "server",
+            "pages": [
+              "services/fresh-rss",
+              "services/ollama",
+              "services/ollama-detail",
+              "services/qdrant",
+              "services/qdrant-detail",
+              "services/websub"
+            ]
+          },
+          {
+            "group": "Administration",
+            "icon": "users",
+            "pages": [
+              "administration/authentication",
+              "administration/users",
+              "administration/profile",
+              "administration/jwt",
+              "administration/posts"
+            ]
+          },
+          {
+            "group": "Reference",
+            "icon": "book",
+            "pages": [
+              "reference/architecture",
+              "reference/processing-pipeline",
+              "reference/similarity-grouping",
+              "reference/authentication",
+              "reference/environment-variables",
+              "reference/http-api",
+              "reference/database",
+              "reference/docker-hosting",
+              "reference/development",
+              "reference/internationalization",
+              "reference/graphql-codegen",
+              "reference/screenshots"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "GraphQL reference",
+        "graphql": {
+          "source": "schema.graphql",
+          "directory": "graphql-reference"
+        },
+        "groups": [
+          {
+            "group": "Overview",
+            "icon": "diagram-project",
+            "pages": ["graphql/overview"]
+          }
         ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "GitHub project",
+          "href": "https://github.com/bludesign/processor",
+          "icon": "github"
         }
       ]
     }
@@ -40,14 +112,14 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Issues",
+        "href": "https://github.com/bludesign/processor/issues"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Get started",
+      "href": "/quickstart"
     }
   },
   "contextual": {
@@ -64,9 +136,18 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+      "github": "https://github.com/bludesign/processor"
+    },
+    "links": [
+      {
+        "header": "© 2026 BluDesign, LLC",
+        "items": [
+          {
+            "label": "Processor on GitHub",
+            "href": "https://github.com/bludesign/processor"
+          }
+        ]
+      }
+    ]
   }
 }

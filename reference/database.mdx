@@ -1,0 +1,41 @@
+---
+title: Database models
+description: Understand the SQLite records owned by Processor and their relationship to external data.
+---
+
+Processor uses Prisma with SQLite. The database stores application identity, configuration, derived grouping state, and durable WebSub queues. FreshRSS articles themselves remain upstream, while their vectors live in Qdrant.
+
+## Identity and sample content
+
+- `User` stores unique email, bcrypt password hash, name, role, and timestamps.
+- `Post` stores the independent GraphQL CRUD example's title, optional content, and publication state.
+
+## Configuration
+
+- `FreshRssServer` stores an upstream API identity and optional Ollama/Qdrant associations.
+- `OllamaServer` stores model endpoint and model selection.
+- `QdrantServer` stores endpoint, collection, vector dimension, and optional key.
+- `FolderProcessingSetting` stores per-server folder policy, threshold, time window, delay, lookback, and monotonic feed timestamp.
+- `SubscriptionPriority` stores the per-server feed priority used in selection policy.
+
+## Grouping
+
+- `ArticleGroup` identifies the folder/server group, primary item, cached longest item, publication timestamps, and membership mutation clock.
+- `ArticleGroupMember` stores item identifiers and similarity to primary and longest items.
+- `SimilarityMatch` is a durable, daily-indexed record used for statistics. It intentionally survives routine group cleanup.
+
+## WebSub
+
+- `WebSubSubscription` stores active leases and encrypted subscriber secrets.
+- `WebSubVerification` stores pending subscribe/unsubscribe challenge work with locking and retries.
+- `WebSubPublishEvent` is the coalescing publisher outbox.
+- `WebSubPublication` stores an immutable Atom body once for fan-out.
+- `WebSubDelivery` tracks each publication/subscriber attempt, lock, retry time, and last error.
+
+## Operational behavior
+
+Prisma's `db push` initializes the local development schema. Treat the database file and its containing directory as secrets because service credentials and WebSub payloads are present. Stop writers and use a SQLite-consistent backup method; copying a live database without its journal/WAL context can be incomplete.
+
+## External consistency
+
+SQLite, FreshRSS, and Qdrant do not share a distributed transaction. Derived relational records can temporarily disagree with vectors or upstream tags after a failure. Incremental retries and deliberate reprocessing are the recovery mechanism.

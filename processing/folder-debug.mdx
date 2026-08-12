@@ -1,0 +1,40 @@
+---
+title: Grouping debugger
+description: Observe, export, and replay folder grouping decisions.
+---
+
+<Frame caption="Grouping debugger">
+  <img className="block dark:hidden" src="/images/light/folder-debug.png" alt="Folder grouping debugger in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/folder-debug.png" alt="Folder grouping debugger in the dark theme" />
+</Frame>
+
+## Purpose
+
+The grouping debugger explains why items were or were not grouped by exposing phases, candidate scores, selected primary and longest articles, and item-body measurements.
+
+## Prerequisites and permissions
+
+Choose a synchronized folder with grouping enabled. Administrator access is required for operations that execute or mutate grouping state.
+
+## Normal workflow
+
+1. Open **Debug** from the folder's settings.
+2. Start a debug run and watch its phase and event stream.
+3. Compare similarity scores, publication times, body lengths, and source priorities.
+4. Export CSV evidence for offline analysis, or import a previously exported fixture for a repeatable investigation.
+5. Stop the run when enough evidence has been collected.
+
+## Important controls and behavior
+
+- **Start** and **Stop** control the diagnostic run, not the global Processor worker.
+- The primary article is influenced by source priority; the longest article is recorded separately.
+- Candidate scores below the folder threshold remain ungrouped even when their titles look related.
+- CSV export/import is intended for diagnostics and reproducibility, not as a database backup format.
+
+## Failure states
+
+No candidate events may indicate the time window or lookback excluded every comparison. Missing bodies, failed embeddings, or a disconnected Qdrant server produce incomplete score evidence. Imported CSV data is rejected when required columns or values are invalid.
+
+## Operational notes
+
+Do not infer semantic quality from score alone. Review content, time, source priority, and model changes together. Keep the model and grouping configuration constant when comparing two debug runs.

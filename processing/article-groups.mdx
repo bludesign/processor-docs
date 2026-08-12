@@ -1,0 +1,39 @@
+---
+title: Article groups
+description: Explore groups of semantically similar coverage.
+---
+
+<Frame caption="Article groups">
+  <img className="block dark:hidden" src="/images/light/article-groups.png" alt="Article groups in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/article-groups.png" alt="Article groups in the dark theme" />
+</Frame>
+
+## Purpose
+
+Article groups collect feed items that fall within a folder's semantic and temporal rules. Each group identifies a primary article, the longest available article, and related coverage with scores.
+
+## Prerequisites and permissions
+
+Similarity grouping must be enabled and successfully processed for at least one folder. Authenticated users can browse groups.
+
+## Normal workflow
+
+1. Select a folder.
+2. Sort by newest, oldest, or most similar depending on the investigation.
+3. Review the primary and longest articles and expand related items.
+4. Load more groups or open an item for source-level detail.
+
+## Important controls and behavior
+
+- **Primary** reflects source priority and grouping policy.
+- **Longest** identifies the most complete stored body and can differ from primary.
+- **Related** items display their similarity to the group anchor.
+- Sorting changes presentation only; it does not recalculate groups.
+
+## Failure states
+
+Sparse groups usually mean the similarity threshold is strict, the time window is short, embeddings changed, or feeds did not publish overlapping coverage. Inspect the debugger before clearing state.
+
+## Operational notes
+
+Groups are derived from the selected embedding model. Model changes should be treated as a reindexing event and validated against representative folders.

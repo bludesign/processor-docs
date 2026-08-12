@@ -1,0 +1,70 @@
+---
+title: Environment variables
+description: Configure services, processing limits, authentication, WebSub, development origins, and Apollo Sandbox.
+---
+
+Database-backed server records can be managed in the UI. Environment variables provide a built-in `environment` server configuration and deployment-wide behavior; environment-defined records are intentionally immutable in the UI.
+
+## Ollama and Qdrant
+
+| Variable | Purpose | Example/default |
+| --- | --- | --- |
+| `OLLAMA_MODEL` | Embedding model | `qwen3-embedding:latest` |
+| `OLLAMA_BASE_URL` | Ollama API origin | `http://localhost:11434` |
+| `QDRANT_URL` | Qdrant API origin | `http://localhost:6333` |
+| `QDRANT_COLLECTION_NAME` | Vector collection | `rss_articles` |
+| `QDRANT_VECTOR_SIZE` | Required model/collection dimension | `1024` |
+
+## FreshRSS
+
+| Variable | Purpose |
+| --- | --- |
+| `FRESH_RSS_BASE_URL` | Google Reader-compatible API base, commonly ending in `/api/greader.php` |
+| `FRESH_RSS_USERNAME` | FreshRSS account name |
+| `FRESH_RSS_API_KEY` | Special API password from the FreshRSS profile |
+| `FRESH_RSS_PROCESSED_TAG` | Tag applied after successful vector processing |
+
+## Processing controls
+
+| Variable | Purpose | Example/default |
+| --- | --- | --- |
+| `RSS_PROCESSOR_ENABLED` | Enables scheduled processing | `true` |
+| `RSS_PROCESSOR_FETCH_INTERVAL` | Scheduler interval in milliseconds | `3600000` |
+| `RSS_PROCESSOR_SUBSCRIPTION_DELAY` | Delay between subscription work | `1000` |
+| `RSS_PROCESSOR_DOCUMENT_DELAY` | Delay between document work | `100` |
+| `RSS_PROCESSOR_RETRY_DELAY` | Subscription retry delay | `1000` |
+| `RSS_PROCESSOR_MAX_RETRIES` | Subscription retry limit | `40` |
+| `RSS_PROCESSOR_DOCUMENT_RETRY_DELAY` | Document retry delay | `1000` |
+| `RSS_PROCESSOR_MAX_DOCUMENT_RETRIES` | Document retry limit | `40` |
+| `RSS_PROCESSOR_MAX_ARTICLES_PER_FEED_FETCH` | Per-feed batch bound | `50` |
+| `RSS_PROCESSOR_MAX_CONTENT_LENGTH` | Maximum normalized content length | `8000` |
+| `RSS_PROCESSOR_TITLE_WEIGHT` | Relative title repetition/weight | `3` |
+
+These names remain stable for compatibility even though the product name is Processor.
+
+## Authentication and feeds
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXTAUTH_URL` | Canonical public application origin |
+| `NEXTAUTH_SECRET` | High-entropy authentication secret |
+| `GROUPED_FEED_SECRET` | Optional dedicated grouped-feed signing secret |
+
+Generate production secrets with a cryptographically secure secret manager. Never reuse the examples from `.env.example`.
+
+## WebSub
+
+| Variable | Purpose |
+| --- | --- |
+| `WEBSUB_ENABLED` | Enables the embedded hub; default is `false` |
+| `WEBSUB_HUB_URL` | Public hub URL; defaults to `${NEXTAUTH_URL}/api/websub/hub` |
+| `WEBSUB_ENCRYPTION_KEY` | Required 32-byte-key material when enabled |
+| `WEBSUB_CALLBACK_ALLOWLIST` | Exact hosts, IPs, or CIDRs allowed for internal callbacks |
+| `WEBSUB_MAX_SUBSCRIPTIONS` | Unauthenticated subscription bound; default `1000` |
+| `WEBSUB_MAX_PENDING_VERIFICATIONS` | Pending-verification bound; default `100` |
+
+Public callbacks must use HTTPS. Private/reserved destinations must be explicitly allowlisted to reduce server-side request forgery risk.
+
+## Development and GraphQL
+
+`ALLOWED_DEV_ORIGINS` is a comma-separated development-origin allowlist. `APOLLO_SANDBOX=true` enables Apollo Sandbox in development; disable it when production policy does not permit an interactive explorer.

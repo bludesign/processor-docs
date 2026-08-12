@@ -1,0 +1,39 @@
+---
+title: Posts
+description: Exercise Processor's authenticated CRUD and draft/publication patterns.
+---
+
+<Frame caption="Posts">
+  <img className="block dark:hidden" src="/images/light/posts.png" alt="Posts in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/posts.png" alt="Posts in the dark theme" />
+</Frame>
+
+## Purpose
+
+Posts is a small authenticated content-management surface used to demonstrate and verify GraphQL list, filter, create, update, publish/draft, and delete behavior.
+
+## Prerequisites and permissions
+
+You must be signed in. Available mutations are still governed by GraphQL authorization rules.
+
+## Normal workflow
+
+1. Search or filter existing posts.
+2. Create a draft with a title and body.
+3. Review and update the record.
+4. Publish it when ready, or return it to draft.
+5. Delete records that are no longer required.
+
+## Important controls and behavior
+
+- Filtering changes the list only.
+- Draft/publication state is stored explicitly.
+- Mutations are executed through the same typed GraphQL client/code-generation path used elsewhere in Processor.
+
+## Failure states
+
+Validation errors block incomplete input. Unauthorized mutations indicate session or role enforcement. A list that appears stale should be refreshed after confirming the mutation completed.
+
+## Operational notes
+
+Posts are independent from RSS feed items and grouped Atom output. Do not use this feature as a substitute for upstream feed content management.
