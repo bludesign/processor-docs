@@ -1,6 +1,6 @@
 ---
 title: Subscriptions
-description: Browse synchronized FreshRSS subscriptions and tune source priority.
+description: Browse FreshRSS subscriptions, tune source priority, and publish private AI Feeds.
 ---
 
 <Frame caption="Subscriptions">
@@ -10,11 +10,11 @@ description: Browse synchronized FreshRSS subscriptions and tune source priority
 
 ## Purpose
 
-Subscriptions exposes the feeds synchronized from FreshRSS and the per-source priority used when Processor chooses a primary article from a similarity group.
+Subscriptions exposes the feeds synchronized from FreshRSS and the per-source priority used when Processor chooses a primary article from a similarity group. Each subscription can also publish a private Atom AI Feed.
 
 ## Prerequisites and permissions
 
-An enabled FreshRSS server must have completed at least one synchronization. Authenticated users can inspect subscriptions; changing operational settings may require administrator access.
+An enabled FreshRSS server must have completed at least one synchronization. Authenticated users can inspect subscriptions and configure their AI Feeds. An administrator must first configure the shared OpenCode provider, model, effort variant, prompt, and API credentials on **AI Feed Settings**.
 
 ## Normal workflow
 
@@ -22,6 +22,9 @@ An enabled FreshRSS server must have completed at least one synchronization. Aut
 2. Open a subscription to verify its upstream identity and recent activity.
 3. Assign a priority from `0` through `1000` when one source should outrank another.
 4. Run processing again for the new priority to affect future primary-article selection.
+5. Click **Configure AI Feed** on a subscription.
+6. Enable the feed, choose its lookback and similarity threshold, and optionally enable Exa retrieval.
+7. Save the settings, then copy or open the signed Atom URL.
 
 ## Important controls and behavior
 
@@ -29,11 +32,17 @@ An enabled FreshRSS server must have completed at least one synchronization. Aut
 - Priority does not change similarity scores, fetch order, or FreshRSS subscription state.
 - Search and category filters affect the current view only.
 - Subscription identity remains tied to the upstream FreshRSS record.
+- The default AI Feed lookback is 48 hours. Processor enriches every item in that window during the normal processing cycle.
+- Exa defaults to `200000` text characters, HTML tags, and full verbosity. You can tune text sections, highlights, summaries, cache age, crawl timeout, subpages, targets, and extra links per subscription.
+- When Exa is disabled or unavailable, Processor summarizes the stored FreshRSS article body. It retries Exa on later cycles.
+- Feed requests read stored summaries and content. They perform Qdrant similarity searches but never call Exa or OpenCode.
+- Each entry contains the AI summary, up to ten same-server similar articles, optional sanitized Exa content, and sanitized original FreshRSS HTML.
+- A settings change regenerates in-window articles during the next cycle. New items remain unpublished until OpenCode returns a summary.
 
 ## Failure states
 
-A missing feed usually indicates it was not returned by the configured FreshRSS account or synchronization has not completed. A saved priority cannot repair unreachable feed content or missing item bodies.
+A missing feed usually indicates it was not returned by the configured FreshRSS account or synchronization has not completed. A saved priority cannot repair unreachable feed content or missing item bodies. An empty AI Feed can also indicate missing global credentials, an unavailable model, or summaries still waiting for a retry.
 
 ## Operational notes
 
-Use priority sparingly and document large differences. Excessive priority bias can consistently select a shorter or less complete article even when grouping itself is correct.
+Use priority sparingly and document large differences. Excessive priority bias can consistently select a shorter or less complete article even when grouping itself is correct. Treat copied AI Feed URLs as credentials because their signatures grant read access.
