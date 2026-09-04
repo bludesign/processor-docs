@@ -49,6 +49,8 @@ These names remain stable for compatibility even though the product name is Proc
 | `NEXTAUTH_URL` | Canonical public application origin |
 | `NEXTAUTH_SECRET` | High-entropy authentication secret |
 | `GROUPED_FEED_SECRET` | Optional dedicated grouped-feed signing secret |
+| `AI_FEED_SIGNING_SECRET` | Optional dedicated AI Feed signing secret; falls back to `NEXTAUTH_SECRET` |
+| `AI_FEED_ENCRYPTION_KEY` | Optional base64-encoded 32-byte key for AI Feed credentials; otherwise Processor derives a scoped key from `NEXTAUTH_SECRET` |
 
 Generate production secrets with a cryptographically secure secret manager. Never reuse the examples from `.env.example`.
 
