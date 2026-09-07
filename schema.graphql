@@ -1,22 +1,337 @@
-"""Requires the current user to hold at least the selected role"""
-directive @auth(
-  """Minimum role required to access the field or object"""
-  requires: Role = READ_ONLY
-) on FIELD_DEFINITION | OBJECT
+"""Requires an authenticated application credential"""
+directive @auth on FIELD_DEFINITION | OBJECT
 
-directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
-
-directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 
 directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
 directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 
-directive @external(reason: String) on OBJECT | FIELD_DEFINITION
-
-directive @tag(name: String!) repeatable on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @external on FIELD_DEFINITION
 
 directive @extends on OBJECT | INTERFACE
+
+directive @tag(name: String!) repeatable on FIELD_DEFINITION | INTERFACE | OBJECT | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+directive @link(url: String, as: String, for: Purpose, import: [Import]) repeatable on SCHEMA
+
+"""Complete Exa Contents configuration supplied for one subscription"""
+input AiFeedExaOptionsInput {
+  """Maximum text characters requested from Exa"""
+  textMaxCharacters: Int! = 200000
+
+  """Whether Exa preserves HTML tags"""
+  textIncludeHtmlTags: Boolean! = true
+
+  """Requested text detail level"""
+  textVerbosity: AiFeedTextVerbosity! = FULL
+
+  """Only semantic sections Exa should include"""
+  textIncludeSections: [AiFeedSectionTag!]! = []
+
+  """Semantic sections Exa should exclude"""
+  textExcludeSections: [AiFeedSectionTag!]! = []
+
+  """Whether Exa highlights are requested"""
+  highlightsEnabled: Boolean! = false
+
+  """Optional highlights ranking query"""
+  highlightsQuery: String
+
+  """Maximum characters of highlights"""
+  highlightsMaxCharacters: Int
+
+  """Whether an Exa summary is requested"""
+  summaryEnabled: Boolean! = false
+
+  """Optional Exa summary query"""
+  summaryQuery: String
+
+  """Optional JSON schema for the Exa summary"""
+  summarySchema: String
+
+  """Maximum cached-content age in hours"""
+  maxAgeHours: Int = 0
+
+  """Live crawl timeout in milliseconds"""
+  livecrawlTimeout: Int
+
+  """Whether Exa should omit empty results"""
+  filterEmptyResults: Boolean! = true
+
+  """Number of related subpages Exa should return"""
+  subpages: Int! = 0
+
+  """Fuzzy targets used to rank subpages"""
+  subpageTarget: [String!]! = []
+
+  """Number of additional links to return"""
+  extrasLinks: Int! = 0
+
+  """Number of additional image links to return"""
+  extrasImageLinks: Int! = 0
+}
+
+"""New per-subscription AI Feed configuration"""
+input UpdateAiFeedSubscriptionSettingInput {
+  """FreshRSS server scope"""
+  serverId: String!
+
+  """FreshRSS subscription identifier owned by the server"""
+  feedId: String!
+
+  """Whether enrichment and signed feed access are enabled"""
+  enabled: Boolean!
+
+  """Whether Exa content is preferred"""
+  useExa: Boolean!
+
+  """Hours of history to retain and enrich"""
+  lookbackHours: Int! = 48
+
+  """Minimum Qdrant similarity score shown in entries"""
+  similarityThreshold: Float! = 0.8
+
+  """Complete Exa Contents configuration"""
+  exa: AiFeedExaOptionsInput!
+}
+
+"""
+Application-wide AI Feed configuration and explicit credential operations
+"""
+input UpdateAiFeedGlobalSettingInput {
+  """Prompt sent to the article summarizer"""
+  summaryPrompt: String!
+
+  """Selected OpenCode provider identifier"""
+  openCodeProviderId: String
+
+  """Selected OpenCode model identifier"""
+  openCodeModelId: String
+
+  """Selected model-specific effort variant"""
+  openCodeVariant: String
+
+  """A non-empty value replaces the stored key; null leaves it unchanged"""
+  openCodeApiKey: String
+
+  """Whether to remove the stored OpenCode provider key"""
+  clearOpenCodeApiKey: Boolean = false
+
+  """A non-empty value replaces the stored key; null leaves it unchanged"""
+  exaApiKey: String
+
+  """Whether to remove the stored Exa key"""
+  clearExaApiKey: Boolean = false
+}
+
+"""One-off prompt test that does not persist settings or article data"""
+input TestAiFeedPromptInput {
+  """Prompt to test"""
+  prompt: String!
+
+  """OpenCode provider identifier"""
+  providerId: String!
+
+  """OpenCode model identifier"""
+  modelId: String!
+
+  """Optional model-specific effort variant"""
+  variant: String
+
+  """Sample article content supplied as untrusted input"""
+  articleContent: String!
+
+  """Optional temporary API key; null uses the encrypted stored key"""
+  openCodeApiKey: String
+}
+
+"""Amount of page text Exa should return"""
+enum AiFeedTextVerbosity {
+  """Main content only"""
+  COMPACT
+
+  """Balanced content and detail"""
+  STANDARD
+
+  """Complete content from every selected section"""
+  FULL
+}
+
+"""Semantic page sections understood by the Exa Contents API"""
+enum AiFeedSectionTag {
+  """Content without a recognized semantic section"""
+  UNSPECIFIED
+
+  """Page header content"""
+  HEADER
+
+  """Site navigation content"""
+  NAVIGATION
+
+  """Banner content"""
+  BANNER
+
+  """Main body content"""
+  BODY
+
+  """Sidebar content"""
+  SIDEBAR
+
+  """Page footer content"""
+  FOOTER
+
+  """Page metadata"""
+  METADATA
+}
+
+"""Complete non-deprecated Exa Contents configuration for a subscription"""
+type AiFeedExaOptions {
+  """Maximum text characters requested from Exa"""
+  textMaxCharacters: Int!
+
+  """Whether Exa preserves HTML tags in returned text"""
+  textIncludeHtmlTags: Boolean!
+
+  """Requested text detail level"""
+  textVerbosity: AiFeedTextVerbosity!
+
+  """Only semantic sections Exa should include"""
+  textIncludeSections: [AiFeedSectionTag!]!
+
+  """Semantic sections Exa should exclude"""
+  textExcludeSections: [AiFeedSectionTag!]!
+
+  """Whether Exa highlights are requested"""
+  highlightsEnabled: Boolean!
+
+  """Optional highlights ranking query"""
+  highlightsQuery: String
+
+  """Maximum characters of highlights"""
+  highlightsMaxCharacters: Int
+
+  """Whether an Exa-provided summary is requested and stored"""
+  summaryEnabled: Boolean!
+
+  """Optional Exa summary query"""
+  summaryQuery: String
+
+  """Optional JSON schema for the Exa summary"""
+  summarySchema: String
+
+  """
+  Maximum cached-content age, including Exa special values zero and negative one
+  """
+  maxAgeHours: Int
+
+  """Live crawl timeout in milliseconds"""
+  livecrawlTimeout: Int
+
+  """Whether Exa should omit empty content results"""
+  filterEmptyResults: Boolean!
+
+  """Number of related subpages Exa should return"""
+  subpages: Int!
+
+  """Fuzzy targets used to rank returned subpages"""
+  subpageTarget: [String!]!
+
+  """Number of additional links to return"""
+  extrasLinks: Int!
+
+  """Number of additional image links to return"""
+  extrasImageLinks: Int!
+}
+
+"""Per-FreshRSS-subscription AI Feed configuration"""
+type AiFeedSubscriptionSetting {
+  """Persisted setting identifier, absent until defaults are saved"""
+  id: ID
+
+  """FreshRSS server scope"""
+  serverId: String!
+
+  """FreshRSS subscription identifier"""
+  feedId: String!
+
+  """Whether the signed Atom feed and enrichment are enabled"""
+  enabled: Boolean!
+
+  """Whether the shared OpenCode provider, model, and key are ready"""
+  configurationReady: Boolean!
+
+  """Whether Exa content should be preferred over FreshRSS content"""
+  useExa: Boolean!
+
+  """Hours of FreshRSS history retained and enriched"""
+  lookbackHours: Int!
+
+  """Minimum Qdrant similarity score shown in entries"""
+  similarityThreshold: Float!
+
+  """Exa Contents options for this subscription"""
+  exa: AiFeedExaOptions!
+
+  """Revision used to invalidate stored enrichment fingerprints"""
+  configurationRevision: Int!
+
+  """ISO timestamp of the last feed-visible change"""
+  feedUpdatedAt: String
+}
+
+"""
+Application-wide AI Feed prompt, model selection, and credential status
+"""
+type AiFeedGlobalSetting {
+  """Prompt sent to the dedicated article summarizer"""
+  summaryPrompt: String!
+
+  """Selected OpenCode provider identifier"""
+  openCodeProviderId: String
+
+  """Selected OpenCode model identifier"""
+  openCodeModelId: String
+
+  """Selected model-specific effort variant"""
+  openCodeVariant: String
+
+  """Whether an encrypted provider API key is stored"""
+  hasOpenCodeApiKey: Boolean!
+
+  """Whether an encrypted Exa API key is stored"""
+  hasExaApiKey: Boolean!
+
+  """Revision used to invalidate every in-window summary"""
+  configurationRevision: Int!
+}
+
+"""One model reported dynamically by the embedded OpenCode server"""
+type OpenCodeModelCatalogItem {
+  """Provider-specific model identifier"""
+  id: String!
+
+  """Human-readable model name"""
+  name: String!
+
+  """Maximum model context in tokens"""
+  contextLimit: Int!
+
+  """Model-specific effort variants reported by OpenCode"""
+  variants: [String!]!
+}
+
+"""One API-key provider and its available OpenCode models"""
+type OpenCodeProviderCatalogItem {
+  """OpenCode provider identifier"""
+  id: String!
+
+  """Human-readable provider name"""
+  name: String!
+
+  """Available non-deprecated models"""
+  models: [OpenCodeModelCatalogItem!]!
+}
 
 """
 Non-negative safe integer timestamp in milliseconds since the Unix epoch
@@ -32,8 +347,18 @@ scalar TimestampMicroseconds
 type Query {
   """Basic health check query"""
   hello: String
-  _entities(representations: [_Any!]!): [_Entity]!
-  _service: _Service!
+
+  """Read redacted application-wide AI Feed configuration"""
+  aiFeedGlobalSettings: AiFeedGlobalSetting!
+
+  """Enumerate providers, models, and model-specific variants from OpenCode"""
+  aiFeedOpenCodeCatalog: [OpenCodeProviderCatalogItem!]!
+
+  """Generate a private scope-bound Atom feed URL"""
+  getAiFeedUrl(
+    """Persisted AI Feed setting identifier"""
+    settingId: ID!
+  ): String!
 
   """Retrieve RSS feed items from a specific stream with optional filtering"""
   getRssStreamContents(
@@ -258,14 +583,39 @@ type Query {
     limit: Int = 20
   ): SearchPointsResult!
 
+  """
+  Load cached AI Feed content and related articles without triggering AI processing.
+  """
+  getReaderEnrichment(
+    """FreshRSS server containing the article and its related coverage."""
+    serverId: String!
+
+    """Original FreshRSS article identifier."""
+    itemId: String!
+  ): ReaderEnrichment!
+
+  """
+  Capture a complete ordered snapshot of up to 50,000 matching FreshRSS item IDs for stable reader navigation
+  """
+  getReaderItemIds(
+    """Configured FreshRSS server identifier"""
+    serverId: String!
+
+    """FreshRSS reading-list, feed, or folder stream identifier"""
+    streamId: String!
+
+    """Article state filter"""
+    filter: ReaderFilter! = UNREAD
+
+    """Article ordering"""
+    order: ReaderOrder! = NEWEST
+  ): [String!]!
+
   """Get the current status of the RSS feed processor"""
   getRssProcessorStatus(
     """Server ID to use for the request (defaults to environment server)"""
     serverId: String = "environment"
   ): RssProcessorStatus!
-
-  """Check if the system requires initial setup"""
-  getSetupStatus: SetupStatus!
 
   """Get grouping settings for a folder"""
   getFolderGroupingSettings(
@@ -343,29 +693,34 @@ type Query {
     """
     endDate: String
   ): SimilarityStatistics!
-
-  """Retrieve all users in the system (admin only)"""
-  users: [User!]!
-
-  """Retrieve a specific user by ID (admin only)"""
-  user(
-    """Unique identifier of the user to retrieve"""
-    id: String!
-  ): User
-
-  """
-  Access protected data to test authentication (requires regular user or above)
-  """
-  protectedData: ProtectedDataResult!
-
-  """Retrieve the current authenticated user's information"""
-  me: User
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
 }
 
 """Root mutation type - extended by domain-specific schemas"""
 type Mutation {
   """Empty field to ensure valid GraphQL schema"""
   _empty: String
+
+  """Update application-wide AI configuration and credential operations"""
+  updateAiFeedGlobalSettings(
+    """New global configuration"""
+    input: UpdateAiFeedGlobalSettingInput!
+  ): AiFeedGlobalSetting!
+
+  """
+  Run the selected prompt and model against sample article content without saving it
+  """
+  testAiFeedPrompt(
+    """One-off prompt test configuration"""
+    input: TestAiFeedPromptInput!
+  ): String!
+
+  """Create or update one FreshRSS subscription's AI Feed configuration"""
+  updateAiFeedSubscriptionSettings(
+    """New per-subscription configuration"""
+    input: UpdateAiFeedSubscriptionSettingInput!
+  ): AiFeedSubscriptionSetting!
 
   """Apply one or more FreshRSS tags to an item"""
   setRssItemTags(
@@ -534,6 +889,25 @@ type Mutation {
     serverId: String = "environment"
   ): Boolean!
 
+  """
+  Set read or starred state for up to 200 articles and verify each requested state against FreshRSS
+  """
+  setRssItemsState(
+    """Configured FreshRSS server identifier"""
+    serverId: String!
+
+    """FreshRSS article identifiers; duplicates are updated once"""
+    itemIds: [String!]!
+
+    """Whether articles should be read; omitted leaves read state unchanged"""
+    isRead: Boolean
+
+    """
+    Whether articles should be starred; omitted leaves starred state unchanged
+    """
+    isStarred: Boolean
+  ): RssItemsStateResult!
+
   """Manually trigger RSS feed processing for all subscriptions"""
   processRssFeeds(
     """
@@ -550,12 +924,6 @@ type Mutation {
     """Server ID to use for the request (defaults to environment server)"""
     serverId: String = "environment"
   ): CancelRssProcessingResult!
-
-  """Create the first administrator user (only allowed when no users exist)"""
-  createFirstAdminUser(
-    """Administrator account details"""
-    input: CreateFirstAdminUserInput!
-  ): CreateFirstAdminUserResult!
 
   """Update grouping settings for a folder"""
   updateFolderGroupingSettings(
@@ -620,30 +988,6 @@ type Mutation {
     """Server ID to use for the request (defaults to environment server)"""
     serverId: String! = "environment"
   ): CleanupResult!
-
-  """Create a new user account (admin only)"""
-  createUser(
-    """New user account details"""
-    input: CreateUserInput!
-  ): CreateUserResult!
-
-  """Update a user's role (admin only)"""
-  updateUserRole(
-    """Target user and replacement role"""
-    input: UpdateUserRoleInput!
-  ): UpdateUserRoleResult!
-
-  """Delete a user account (admin only)"""
-  deleteUser(
-    """Unique identifier of the user to delete"""
-    userId: String!
-  ): DeleteUserResult!
-
-  """Update the current authenticated user's profile"""
-  updateMe(
-    """Profile fields to update"""
-    input: UpdateMeInput!
-  ): User
 }
 
 """
@@ -757,6 +1101,9 @@ input StreamContentsOptions {
 
   """Whether to exclude items that have been marked as read"""
   excludeRead: Boolean
+
+  """Return the oldest items first instead of the newest items first"""
+  oldestFirst: Boolean
 }
 
 """Result of applying tags to a FreshRSS item"""
@@ -831,6 +1178,11 @@ type FeedSubscription {
   Priority used to bias longest-article selection in grouped feeds (0-1000, higher wins; default 0)
   """
   priority: Int!
+
+  """
+  Per-subscription AI Feed configuration, defaulted when no row has been saved
+  """
+  aiFeedSettings: AiFeedSubscriptionSetting!
 }
 
 """Container for all RSS feed subscriptions"""
@@ -1947,6 +2299,77 @@ type SearchPointsResult {
   points: [QdrantPoint!]!
 }
 
+"""
+Optional cached AI content and live related coverage for a FreshRSS article.
+"""
+type ReaderEnrichment {
+  """
+  The stored AI Feed summary, when enabled and still within the subscription's lookback period.
+  """
+  aiSummary: String
+
+  """
+  The stored Exa article body, when AI Feed and Exa are enabled. Treat this content as untrusted.
+  """
+  exaContent: String
+
+  """Whether exaContent contains HTML rather than plain text."""
+  exaIsHtml: Boolean!
+
+  """
+  Related articles across the selected server, with current FreshRSS read and starred categories.
+  """
+  similarItems: [FeedItem!]!
+
+  """
+  Whether some related coverage could not be loaded. Successfully loaded articles are still returned.
+  """
+  similarUnavailable: Boolean!
+}
+
+"""Article state filter used by the RSS reader"""
+enum ReaderFilter {
+  """Articles currently unread in FreshRSS"""
+  UNREAD
+
+  """All articles, including read articles"""
+  ALL
+
+  """Articles saved as starred in FreshRSS"""
+  STARRED
+}
+
+"""Article order used by the RSS reader"""
+enum ReaderOrder {
+  """Newest articles first"""
+  NEWEST
+
+  """Oldest articles first"""
+  OLDEST
+}
+
+"""Verified outcome of updating article state in FreshRSS"""
+type RssItemsStateResult {
+  """Whether every requested article was verified in the requested state"""
+  success: Boolean!
+
+  """Canonical FreshRSS IDs verified in the requested state"""
+  updatedIds: [String!]!
+
+  """
+  Canonical FreshRSS IDs that were missing or could not be verified in the requested state
+  """
+  failedIds: [String!]!
+
+  """
+  Current available article content and state after the update, in request order
+  """
+  items: [FeedItem!]!
+
+  """Outcome information when an update could not be verified"""
+  message: String
+}
+
 """Current status and state of the RSS feed processor"""
 type RssProcessorStatus {
   """Whether the RSS processor service is running"""
@@ -1998,42 +2421,6 @@ type CancelRssProcessingResult {
   Whether processing was actually running when cancellation was requested
   """
   wasProcessing: Boolean!
-}
-
-"""System setup status information"""
-type SetupStatus {
-  """Whether the system requires initial setup (no users exist)"""
-  setupRequired: Boolean!
-
-  """Whether any users exist in the system"""
-  hasUsers: Boolean!
-}
-
-"""Input for creating the first administrator user"""
-input CreateFirstAdminUserInput {
-  """Administrator's display name"""
-  name: String!
-
-  """Administrator's email address (must be unique)"""
-  email: String!
-
-  """Administrator's password (will be hashed before storage)"""
-  password: String!
-}
-
-"""Result of first admin user creation"""
-type CreateFirstAdminUserResult {
-  """Whether the admin user creation was successful"""
-  success: Boolean!
-
-  """Human-readable message describing the result"""
-  message: String!
-
-  """The created admin user object (null if creation failed)"""
-  user: User
-
-  """Error message if creation failed (null if successful)"""
-  error: String
 }
 
 """Sorting options for article groups"""
@@ -2233,123 +2620,11 @@ type SimilarityStatistics {
   points: [SimilarityStatisticsPoint!]!
 }
 
-"""Input for creating a new user account"""
-input CreateUserInput {
-  """User's display name"""
-  name: String!
+scalar _FieldSet
 
-  """User's email address (must be unique)"""
-  email: String!
+scalar Import
 
-  """User's password (will be hashed before storage)"""
-  password: String!
-
-  """Initial role assignment for the user"""
-  role: Role!
-}
-
-"""Input for updating a user's role"""
-input UpdateUserRoleInput {
-  """ID of the user whose role should be updated"""
-  userId: String!
-
-  """New role to assign to the user"""
-  role: Role!
-}
-
-"""Input for updating the current user's profile"""
-input UpdateMeInput {
-  """New email address (optional)"""
-  email: String
-
-  """New password (optional)"""
-  newPassword: String
-
-  """Current password (required for verification)"""
-  currentPassword: String!
-}
-
-"""User role enumeration defining permission levels in the system"""
-enum Role {
-  """Administrator with full system access and user management privileges"""
-  ADMIN
-
-  """Regular user with standard content creation and modification rights"""
-  REGULAR
-
-  """Read-only user with view access to public content only"""
-  READ_ONLY
-}
-
-"""
-User entity representing a system user with authentication and role information
-"""
-type User {
-  """Unique user identifier"""
-  id: String!
-
-  """User's display name (optional)"""
-  name: String
-
-  """User's email address (unique, required for authentication)"""
-  email: String!
-
-  """User's role determining their permission level"""
-  role: Role!
-
-  """Timestamp when the user account was created"""
-  createdAt: String!
-
-  """Timestamp when the user account was last updated"""
-  updatedAt: String!
-}
-
-"""Result of user creation operation"""
-type CreateUserResult {
-  """Whether the user creation was successful"""
-  success: Boolean!
-
-  """Human-readable message describing the result"""
-  message: String!
-
-  """The created user object (null if creation failed)"""
-  user: User
-}
-
-"""Result of user role update operation"""
-type UpdateUserRoleResult {
-  """Whether the role update was successful"""
-  success: Boolean!
-
-  """Human-readable message describing the result"""
-  message: String!
-
-  """The updated user object (null if update failed)"""
-  user: User
-}
-
-"""Result of user deletion operation"""
-type DeleteUserResult {
-  """Whether the user deletion was successful"""
-  success: Boolean!
-
-  """Human-readable message describing the result"""
-  message: String!
-}
-
-"""Protected data accessible only to authenticated users"""
-type ProtectedDataResult {
-  """Message confirming access to protected data"""
-  message: String!
-
-  """Timestamp when the data was accessed"""
-  timestamp: String!
-
-  """Information about the accessing user"""
-  user: User
-}
-
-enum link__Purpose {
+enum Purpose {
   """
   `SECURITY` features provide metadata necessary to securely resolve fields.
   """
@@ -2361,14 +2636,10 @@ enum link__Purpose {
   EXECUTION
 }
 
-scalar link__Import
-
-scalar _FieldSet
-
-scalar _Any
-
 type _Service {
   sdl: String
 }
 
-union _Entity = ArticleGroup | DocumentMetadata | FeedItem | FeedSubscription | FolderUnreadCount | FreshRssServer | OllamaServer | Post | QdrantServer | StateUnreadCount | TagFolder | TagLabel | TagPredefined | User
+scalar _Any
+
+union _Entity = ArticleGroup | DocumentMetadata | FeedItem | FeedSubscription | FolderUnreadCount | FreshRssServer | OllamaServer | Post | QdrantServer | StateUnreadCount | TagFolder | TagLabel | TagPredefined

@@ -24,6 +24,7 @@
             "icon": "gauge",
             "pages": [
               "dashboard",
+              "processing/reader",
               "processing/processor-status",
               "processing/subscriptions",
               "processing/folders",

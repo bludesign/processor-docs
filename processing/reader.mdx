@@ -1,0 +1,78 @@
+---
+title: RSS reader
+description: Read articles from FreshRSS, manage read and starred state, and review AI summaries and related coverage.
+---
+
+<Frame caption="RSS reader">
+  <img
+    className="block dark:hidden"
+    src="/images/light/reader.png"
+    alt="RSS reader with the article list, AI summary, related coverage, and article content in the light theme"
+  />
+  <img
+    className="hidden dark:block"
+    src="/images/dark/reader.png"
+    alt="RSS reader with the article list, AI summary, related coverage, and article content in the dark theme"
+  />
+</Frame>
+
+## Prerequisites and permissions
+
+Sign in to Processor and configure a [FreshRSS server](/services/fresh-rss) with API access. Any signed-in user can read articles and update their read and starred state. These changes apply to the FreshRSS account configured for the selected server.
+
+The reader loads articles directly from FreshRSS. You can read articles before Processor indexes or groups them. AI summaries and related coverage require the corresponding processing features to be configured separately.
+
+## Read articles
+
+1. Open **Reader** and choose your FreshRSS server.
+2. Browse all articles, a folder, or an individual feed.
+3. Filter the list to unread articles, all articles, or starred articles. Choose newest or oldest first.
+4. Select an article to open its content beside the list. Opening an unread article marks it as read in FreshRSS.
+5. Move through the list with the navigation controls or keyboard shortcuts.
+
+Loaded articles stay in the list as you read or unstar them. Refresh the list to apply its filter to the latest FreshRSS state. This keeps your place while you work through unread articles.
+
+The reader starts with unread articles, newest first. On a phone, opening an article switches from the list to the reading pane; use the back control to return to the list.
+
+FreshRSS orders the list by when it received each article. A publisher's publication date can differ from that order.
+
+## Read state and saved articles
+
+Use the article controls to mark an article read or unread and to add or remove its star. Starred articles are the same saved articles you see in FreshRSS.
+
+Processor sends each change through the FreshRSS API and refreshes the unread counts. If a change fails, the reader reports the failure so you can retry. Refresh to retrieve changes made in another FreshRSS client.
+
+## AI summaries and related coverage
+
+For a feed with AI Feed enabled, an available AI summary appears above the article body. When Exa retrieval is also enabled and its cached content is available, the reader displays that content. Otherwise, it uses the original FreshRSS article content.
+
+Use **Exa content** and **Original** to switch between the retrieved body and the original feed content.
+
+AI content follows the feed's configured lookback period. Opening an article reads existing enrichment; it does not start a new AI summary or Exa request.
+
+Related articles appear above the body. The reader combines persisted similarity groups with AI Feed similarity results, removes duplicates, and retrieves their current read and starred state from FreshRSS. Related coverage can come from another feed or folder on the same server.
+
+Use **Mark all similar articles read** or `Shift+m` to mark the displayed unread related articles as read together. This action leaves the selected article's state unchanged and includes related articles outside the selected feed or folder. Individual related articles remain available to open and review.
+
+## Keyboard shortcuts
+
+| Shortcut                | Action                                               |
+| ----------------------- | ---------------------------------------------------- |
+| `j` / `k`               | Open the next or previous article.                   |
+| `m`                     | Toggle the selected article between read and unread. |
+| `s`                     | Add or remove the selected article's star.           |
+| `Shift+m`               | Mark the displayed unread similar articles as read.  |
+| `Space` / `Shift+Space` | Scroll the article down or up.                       |
+| `o`                     | Open the source article in a new tab.                |
+| `r`                     | Refresh the current list and unread counts.          |
+| `?`                     | Open keyboard shortcut help.                         |
+
+Shortcuts pause while you type in a field or use an open dialog, menu, or selector. You can also open the shortcut reference with the **Keyboard shortcuts** button.
+
+## Failure states and operational notes
+
+- If FreshRSS is unavailable or rejects the configured credentials, reconnect the server and retry the list or article action.
+- A feed may contain only an excerpt. Open the source link when the available article body is incomplete.
+- Missing AI content falls back to the original article. Unavailable related coverage does not prevent you from reading the article.
+- Unread and starred views support up to 50,000 articles. Select a feed or folder if a broader view exceeds this limit. The reader reports the limit instead of silently omitting articles.
+- Article HTML is sanitized before display. Publisher scripts and unsafe embedded content do not run in the reader.
