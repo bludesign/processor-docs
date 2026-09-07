@@ -4,16 +4,8 @@ description: Read articles from FreshRSS, manage read and starred state, and rev
 ---
 
 <Frame caption="RSS reader">
-  <img
-    className="block dark:hidden"
-    src="/images/light/reader.png"
-    alt="RSS reader with the article list, AI summary, related coverage, and article content in the light theme"
-  />
-  <img
-    className="hidden dark:block"
-    src="/images/dark/reader.png"
-    alt="RSS reader with the article list, AI summary, related coverage, and article content in the dark theme"
-  />
+  <img className="block dark:hidden" src="/images/light/reader.png" alt="RSS reader with the article list, AI summary, related coverage, and article content in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/reader.png" alt="RSS reader with the article list, AI summary, related coverage, and article content in the dark theme" />
 </Frame>
 
 ## Prerequisites and permissions
@@ -36,6 +28,21 @@ The reader starts with unread articles, newest first. On a phone, opening an art
 
 FreshRSS orders the list by when it received each article. A publisher's publication date can differ from that order.
 
+Feed icons identify sources in the navigation, article list, reading pane, and related coverage. Articles published within the last 24 hours show a relative time in the list; older articles show a date. The reading pane shows the full publication date and time followed by a relative time, formatted for your language and time zone. Click the article title to open the publisher's page in a new tab.
+
+## Customize the reader
+
+Open **Reader layout** to choose the content width and whether to show the AI summary and similar articles. Click **Save settings** to apply your preferences. Processor saves them to your account so they follow you across devices.
+
+| Width           | Maximum width                       |
+| --------------- | ----------------------------------- |
+| **Narrow**      | 640 pixels                          |
+| **Comfortable** | 768 pixels; the default             |
+| **Wide**        | 1,024 pixels                        |
+| **Full width**  | Available width of the reading pane |
+
+AI summaries and similar articles are shown by default. Hiding either section changes your reading view. When similar articles are hidden, `Shift+m` does not mark them as read.
+
 ## Read state and saved articles
 
 Use the article controls to mark an article read or unread and to add or remove its star. Starred articles are the same saved articles you see in FreshRSS.
@@ -46,7 +53,7 @@ Processor sends each change through the FreshRSS API and refreshes the unread co
 
 For a feed with AI Feed enabled, an available AI summary appears above the article body. When Exa retrieval is also enabled and its cached content is available, the reader displays that content. Otherwise, it uses the original FreshRSS article content.
 
-Use **Exa content** and **Original** to switch between the retrieved body and the original feed content.
+Use **Exa content** and **Original**, or press `l`, to switch between the retrieved body and the original feed content. The shortcut has no effect when Exa content is unavailable.
 
 AI content follows the feed's configured lookback period. Opening an article reads existing enrichment; it does not start a new AI summary or Exa request.
 
@@ -54,24 +61,32 @@ Related articles appear above the body. The reader combines persisted similarity
 
 Use **Mark all similar articles read** or `Shift+m` to mark the displayed unread related articles as read together. This action leaves the selected article's state unchanged and includes related articles outside the selected feed or folder. Individual related articles remain available to open and review.
 
+## Download article content
+
+Open **Article menu** in the reading pane and choose **Download Exa content** or **Download original content**. Each option is available when that article body is present.
+
+Exa downloads use `.html` when the cached content includes HTML and `.txt` when it is plain text. Original feed content downloads as `.html`. Files contain the exact stored body, without adding the reader's AI summary or related coverage panels. Downloading uses the content already available to Processor and does not retrieve a new publisher page.
+
 ## Keyboard shortcuts
 
-| Shortcut                | Action                                               |
-| ----------------------- | ---------------------------------------------------- |
-| `j` / `k`               | Open the next or previous article.                   |
-| `m`                     | Toggle the selected article between read and unread. |
-| `s`                     | Add or remove the selected article's star.           |
-| `Shift+m`               | Mark the displayed unread similar articles as read.  |
-| `Space` / `Shift+Space` | Scroll the article down or up.                       |
-| `o`                     | Open the source article in a new tab.                |
-| `r`                     | Refresh the current list and unread counts.          |
-| `?`                     | Open keyboard shortcut help.                         |
+| Shortcut                | Action                                                           |
+| ----------------------- | ---------------------------------------------------------------- |
+| `j` / `k`               | Open the next or previous article.                               |
+| `m`                     | Toggle the selected article between read and unread.             |
+| `s`                     | Add or remove the selected article's star.                       |
+| `l`                     | Switch between available Exa content and the original feed body. |
+| `Shift+m`               | Mark the displayed unread similar articles as read.              |
+| `Space` / `Shift+Space` | Scroll the article down or up.                                   |
+| `o`                     | Open the source article in a new tab.                            |
+| `r`                     | Refresh the current list and unread counts.                      |
+| `?`                     | Open keyboard shortcut help.                                     |
 
 Shortcuts pause while you type in a field or use an open dialog, menu, or selector. You can also open the shortcut reference with the **Keyboard shortcuts** button.
 
 ## Failure states and operational notes
 
 - If FreshRSS is unavailable or rejects the configured credentials, reconnect the server and retry the list or article action.
+- If layout preferences fail to load, use **Retry** in **Reader layout**. If saving fails, your choices stay in the dialog so you can try **Save settings** again.
 - A feed may contain only an excerpt. Open the source link when the available article body is incomplete.
 - Missing AI content falls back to the original article. Unavailable related coverage does not prevent you from reading the article.
 - Unread and starred views support up to 50,000 articles. Select a feed or folder if a broader view exceeds this limit. The reader reports the limit instead of silently omitting articles.

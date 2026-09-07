@@ -595,6 +595,11 @@ type Query {
   ): ReaderEnrichment!
 
   """
+  Read the authenticated user's persisted reader preferences, or their defaults.
+  """
+  getReaderSettings: ReaderSettings!
+
+  """
   Capture a complete ordered snapshot of up to 50,000 matching FreshRSS item IDs for stable reader navigation
   """
   getReaderItemIds(
@@ -888,6 +893,12 @@ type Mutation {
     """
     serverId: String = "environment"
   ): Boolean!
+
+  """Save only the supplied reader preferences for the authenticated user."""
+  updateReaderSettings(
+    """Preference fields to change; at least one non-null field is required."""
+    input: UpdateReaderSettingsInput!
+  ): ReaderSettings!
 
   """
   Set read or starred state for up to 200 articles and verify each requested state against FreshRSS
@@ -2325,6 +2336,51 @@ type ReaderEnrichment {
   Whether some related coverage could not be loaded. Successfully loaded articles are still returned.
   """
   similarUnavailable: Boolean!
+}
+
+"""Maximum article reading width. All widths fit the available viewport."""
+enum ReaderContentWidth {
+  """A narrow column, up to 640 pixels."""
+  NARROW
+
+  """A comfortable column, up to 768 pixels (the default)."""
+  COMFORTABLE
+
+  """A wide column, up to 1024 pixels."""
+  WIDE
+
+  """Use the full available reading pane width."""
+  FULL
+}
+
+"""
+Reader preferences belonging to the authenticated user, shared across FreshRSS
+servers and devices. New users receive a comfortable column with both panels shown.
+"""
+type ReaderSettings {
+  """Maximum width of the article and its enrichment panels."""
+  contentWidth: ReaderContentWidth!
+
+  """Show the existing AI summary above article content."""
+  showAiSummary: Boolean!
+
+  """Show related articles and their bulk mark-as-read control."""
+  showSimilarArticles: Boolean!
+}
+
+"""
+Change at least one preference. Omitted fields retain their stored values; explicit
+null values are rejected. Preferences affect presentation, not feed processing.
+"""
+input UpdateReaderSettingsInput {
+  """New maximum article width."""
+  contentWidth: ReaderContentWidth
+
+  """Whether to display the AI summary."""
+  showAiSummary: Boolean
+
+  """Whether to display related articles and their bulk action."""
+  showSimilarArticles: Boolean
 }
 
 """Article state filter used by the RSS reader"""
