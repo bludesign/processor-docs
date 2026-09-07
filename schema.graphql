@@ -23,6 +23,11 @@ input AiFeedExaOptionsInput {
   """Whether Exa preserves HTML tags"""
   textIncludeHtmlTags: Boolean! = true
 
+  """
+  Collapse adjacent repeated text and images in Exa content for reading and summarization, preferring headings. Cached content and downloads remain unchanged. This option is applied by Processor and is not sent to Exa.
+  """
+  filterRepeatingContent: Boolean! = false
+
   """Requested text detail level"""
   textVerbosity: AiFeedTextVerbosity! = FULL
 
@@ -192,6 +197,11 @@ type AiFeedExaOptions {
 
   """Whether Exa preserves HTML tags in returned text"""
   textIncludeHtmlTags: Boolean!
+
+  """
+  Whether Processor collapses adjacent repeated text and images in Exa content for reading and summarization, preferring headings. Cached content and downloads remain unchanged.
+  """
+  filterRepeatingContent: Boolean!
 
   """Requested text detail level"""
   textVerbosity: AiFeedTextVerbosity!
@@ -2323,6 +2333,11 @@ type ReaderEnrichment {
   The stored Exa article body, when AI Feed and Exa are enabled. Treat this content as untrusted.
   """
   exaContent: String
+
+  """
+  Exa body with adjacent repeated content removed when enabled for the feed. The unmodified body remains available in exaContent.
+  """
+  exaFilteredContent: String
 
   """Whether exaContent contains HTML rather than plain text."""
   exaIsHtml: Boolean!

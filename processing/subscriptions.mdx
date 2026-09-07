@@ -39,6 +39,16 @@ An enabled FreshRSS server must have completed at least one synchronization. Aut
 - Each entry contains the AI summary, up to ten same-server similar articles, optional sanitized Exa content, and sanitized original FreshRSS HTML.
 - A settings change regenerates in-window articles during the next cycle. New items remain unpublished until OpenCode returns a summary.
 
+## Filter repeated Exa content
+
+In **Configure AI Feed**, find **Exa Contents options** and enable **Filter repeating content**. This setting is off by default and applies to that subscription.
+
+The filter collapses consecutive copies of the same text block or image. When an HTML heading repeats the text of an adjacent paragraph, it keeps the heading. Repeated text separated by other content stays in the article.
+
+The reader and AI Feed apply the filter to existing cached Exa content. Future AI summaries use the filtered content during processing. Saving this option does not rewrite an existing summary immediately.
+
+Cached Exa content and article downloads keep the original body. Disable the option to show the unfiltered body again.
+
 ## Failure states
 
 A missing feed usually indicates it was not returned by the configured FreshRSS account or synchronization has not completed. A saved priority cannot repair unreachable feed content or missing item bodies. An empty AI Feed can also indicate missing global credentials, an unavailable model, or summaries still waiting for a retry.

@@ -55,6 +55,8 @@ For a feed with AI Feed enabled, an available AI summary appears above the artic
 
 Use **Exa content** and **Original**, or press `l`, to switch between the retrieved body and the original feed content. The shortcut has no effect when Exa content is unavailable.
 
+To collapse consecutive repeated text and images in Exa content, open the subscription's **Configure AI Feed** dialog and enable **Filter repeating content** under **Exa Contents options**. The option is off by default. It keeps an HTML heading when an adjacent paragraph repeats that heading and preserves repetitions separated by other content. Your original feed body and raw Exa downloads stay unchanged. See [subscription settings](/processing/subscriptions#filter-repeated-exa-content) for how this affects the AI Feed and future summaries.
+
 AI content follows the feed's configured lookback period. Opening an article reads existing enrichment; it does not start a new AI summary or Exa request.
 
 Related articles appear above the body. The reader combines persisted similarity groups with AI Feed similarity results, removes duplicates, and retrieves their current read and starred state from FreshRSS. Related coverage can come from another feed or folder on the same server.
