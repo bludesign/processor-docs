@@ -370,6 +370,12 @@ type Query {
     settingId: ID!
   ): String!
 
+  """Recent operations and every unfinished operation for a server."""
+  rssManagementOperations(
+    """Explicit FreshRSS server scope."""
+    serverId: String!
+  ): [RssManagementOperation!]!
+
   """Retrieve RSS feed items from a specific stream with optional filtering"""
   getRssStreamContents(
     """Stream ID (defaults to reading list - all subscribed feeds)"""
@@ -736,6 +742,25 @@ type Mutation {
     """New per-subscription configuration"""
     input: UpdateAiFeedSubscriptionSettingInput!
   ): AiFeedSubscriptionSetting!
+
+  """
+  Queue a validated individual edit and synchronization of processed history.
+  """
+  manageRss(
+    """Management command."""
+    input: RssManagementInput!
+  ): RssManagementOperation!
+
+  """
+  Resume an operation from its saved checkpoint without duplicating the FreshRSS change.
+  """
+  retryRssManagement(
+    """Saved operation identifier."""
+    operationId: ID!
+
+    """Explicit server scope."""
+    serverId: String!
+  ): RssManagementOperation!
 
   """Apply one or more FreshRSS tags to an item"""
   setRssItemTags(
@@ -1125,6 +1150,92 @@ input StreamContentsOptions {
 
   """Return the oldest items first instead of the newest items first"""
   oldestFirst: Boolean
+}
+
+"""Individual changes to FreshRSS subscriptions and folders."""
+enum RssManagementAction {
+  """Create a folder by assigning its first existing or new subscription."""
+  CREATE_FOLDER
+
+  """Rename a folder and issue new published feed links."""
+  RENAME_FOLDER
+
+  """
+  Delete a folder while keeping subscriptions in FreshRSS's default folder.
+  """
+  DELETE_FOLDER
+
+  """Subscribe to a feed URL."""
+  ADD_SUBSCRIPTION
+
+  """Change a subscription title."""
+  RENAME_SUBSCRIPTION
+
+  """Move a subscription and its retained processed history."""
+  MOVE_SUBSCRIPTION
+
+  """Unsubscribe while retaining archived Processor article content."""
+  UNSUBSCRIBE
+}
+
+"""
+One management command. CREATE_FOLDER requires title and exactly one of feedId or url.
+"""
+input RssManagementInput {
+  """Explicit FreshRSS server scope."""
+  serverId: String!
+
+  """Change to perform."""
+  action: RssManagementAction!
+
+  """Existing subscription identifier."""
+  feedId: String
+
+  """Source folder for rename/delete, or destination folder for add/move."""
+  folderId: String
+
+  """New folder name or subscription title."""
+  title: String
+
+  """HTTP(S) feed URL when subscribing."""
+  url: String
+}
+
+"""
+Durable progress for a management command and its Processor synchronization.
+"""
+type RssManagementOperation {
+  """Operation identifier used for retry."""
+  id: ID!
+
+  """FreshRSS server scope."""
+  serverId: String!
+
+  """Requested change."""
+  action: RssManagementAction!
+
+  """QUEUED, RUNNING, FAILED, or COMPLETED."""
+  status: String!
+
+  """PREPARE, UPSTREAM, SYNCHRONIZING, or COMPLETED."""
+  phase: String!
+
+  """Whether the expected FreshRSS change has been verified."""
+  upstreamApplied: Boolean!
+
+  """
+  Whether this operation must be retried before further edits or processing.
+  """
+  requiresRetry: Boolean!
+
+  """Diagnostic failure detail; no credentials are included."""
+  error: String
+
+  """Creation time in ISO 8601 format."""
+  createdAt: String!
+
+  """Last progress time in ISO 8601 format."""
+  updatedAt: String!
 }
 
 """Result of applying tags to a FreshRSS item"""
