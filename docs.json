@@ -24,9 +24,9 @@
             "icon": "gauge",
             "pages": [
               "dashboard",
+              "processing/reader",
               "processing/processor-status",
               "processing/subscriptions",
-              "processing/folders",
               "processing/folder-debug",
               "processing/feed-items",
               "processing/feed-item-detail",
