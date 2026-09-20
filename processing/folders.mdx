@@ -1,36 +1,38 @@
 ---
 title: Folders and grouping settings
-description: Select FreshRSS folders for processing and configure similarity grouping.
+description: Configure folder processing and similarity grouping from the unified Subscriptions page.
 ---
 
-<Frame caption="Folders">
-  <img className="block dark:hidden" src="/images/light/folders.png" alt="Folders in the light theme" />
-  <img className="hidden dark:block" src="/images/dark/folders.png" alt="Folders in the dark theme" />
+<Frame caption="Folder controls on Subscriptions">
+  <img className="block dark:hidden" src="/images/light/subscriptions.png" alt="Expandable subscription folders in the light theme" />
+  <img className="hidden dark:block" src="/images/dark/subscriptions.png" alt="Expandable subscription folders in the dark theme" />
 </Frame>
 
 ## Purpose
 
-Folders maps FreshRSS categories to Processor's processing and grouping policy. Each folder can be included in synchronization and can independently enable similarity grouping and a grouped Atom feed.
+Folder headers on **Subscriptions** connect FreshRSS categories to Processor's processing and grouping policy. You can configure each folder while editing its subscriptions on the same page. The former `/folders` landing page redirects to **Subscriptions**.
 
 ## Prerequisites and permissions
 
-Configure and synchronize a FreshRSS server first. Administrators manage folder settings. Similarity grouping also requires reachable Ollama and Qdrant servers.
+Configure and select a FreshRSS server first. All signed-in users can manage folder settings. Similarity grouping also requires reachable Ollama and Qdrant servers.
 
 ## Normal workflow
 
-1. Enable processing for the folders Processor should ingest.
-2. Enable similarity grouping only where duplicate or related coverage is useful.
-3. Set the similarity threshold, time window, processing delay, and lookback.
-4. Save the settings, then run or reprocess the folder.
+1. Open **Subscriptions** and find a folder. Its processing selector remains visible even when the folder is collapsed.
+2. Choose **Similarity Grouping** where duplicate or related coverage is useful.
+3. Click **Configure Grouping Settings** to open the dialog and set the similarity threshold, time window, publish delay, and lookback.
+4. Click **Save Settings**, then **Run Grouping Now** or **Clear & Reprocess**.
 5. Copy, open, or preview the generated Atom URL when grouping is enabled.
+
+Use the folder's actions menu to add a subscription, rename the folder, or delete it. See [Subscriptions](/processing/subscriptions) for management, history synchronization, and retry behavior. A new folder requires its first subscription. Deleting a folder moves its feeds to FreshRSS's default folder; renaming a folder issues new Atom URLs and retires its previous WebSub resources.
 
 ## Important controls and behavior
 
-- **Similarity threshold** ranges from `0` to `1`; higher values demand closer embeddings.
-- **Time window** ranges from `1` to `720` hours and limits which articles can be compared.
-- **Processing delay** ranges from `0` to `1440` minutes and allows late-arriving coverage to accumulate.
-- **Lookback** ranges from `1` to `3650` days; an empty value means no explicit day limit.
-- **Run** processes the folder with current state. **Clear and reprocess** deliberately rebuilds its derived grouping state.
+- **Similarity Threshold** ranges from `0` to `1`; higher values demand closer embeddings.
+- **Time Window (hours)** ranges from `1` to `720` hours and limits which articles can be compared.
+- **Publish Delay (minutes)** ranges from `0` to `1440` minutes and allows late-arriving coverage to accumulate before publication.
+- **Lookback Limit (days)** ranges from `1` to `3650` days; an empty value means no explicit day limit.
+- **Run Grouping Now** processes the folder with current state. **Clear & Reprocess** deliberately rebuilds its derived grouping state.
 
 ## Failure states
 

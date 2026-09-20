@@ -1,6 +1,6 @@
 ---
 title: Subscriptions
-description: Browse FreshRSS subscriptions, tune source priority, and publish private AI Feeds.
+description: Manage FreshRSS folders and subscriptions together, configure processing, and publish Atom feeds.
 ---
 
 <Frame caption="Subscriptions">
@@ -10,27 +10,47 @@ description: Browse FreshRSS subscriptions, tune source priority, and publish pr
 
 ## Purpose
 
-Subscriptions exposes the feeds synchronized from FreshRSS and the per-source priority used when Processor chooses a primary article from a similarity group. Each subscription can also publish a private Atom AI Feed.
+**Subscriptions** groups your FreshRSS feeds into expandable folders. You can manage folder membership, processing, source priority, and private AI Feeds on the same page.
 
 ## Prerequisites and permissions
 
-An enabled FreshRSS server must have completed at least one synchronization. Authenticated users can inspect subscriptions and configure their AI Feeds. An administrator must first configure the shared OpenCode provider, model, effort variant, prompt, and API credentials on **AI Feed Settings**.
+Configure a FreshRSS server with working API access, then select it in Processor. All signed-in users have the same management permissions. History synchronization requires the server's configured Qdrant service; similarity grouping also requires Ollama. Configure the shared provider, model, effort variant, prompt, and credentials on **AI Feed Settings** before publishing an AI Feed.
 
 ## Normal workflow
 
-1. Search by feed title or narrow the list by category.
-2. Open a subscription to verify its upstream identity and recent activity.
-3. Assign a priority from `0` through `1000` when one source should outrank another.
-4. Run processing again for the new priority to affect future primary-article selection.
-5. Click **Configure AI Feed** on a subscription.
-6. Enable the feed, choose its lookback and similarity threshold, and optionally enable Exa retrieval.
-7. Save the settings, then copy or open the signed Atom URL.
+1. Expand a folder to see its subscriptions and unread counts. Use **Expand all** or **Collapse all** to adjust the whole view.
+2. Search folder names, subscription titles, or feed URLs. A matching folder shows all its subscriptions; a matching subscription appears beneath its expanded folder.
+3. Use the folder header to choose processing behavior. Select **Similarity Grouping**, then open **Configure Grouping Settings** to configure grouping, preview the Atom feed, or copy its published URL.
+4. Edit a subscription's priority from `0` through `1000` and click **Save**. Processor also updates the displayed main-article choices in existing groups for that subscription's folders.
+5. Click **Configure AI Feed** on a subscription to enable its AI Feed, choose lookback and similarity settings, or configure Exa.
+
+Folders appear alphabetically and start expanded. Empty folders remain visible. Subscriptions without a returned folder appear under **Unfiled**. Folders with more than 25 subscriptions have their own pagination controls.
+
+## Add and organize subscriptions
+
+Click **Add subscription**, enter an HTTP or HTTPS feed URL, and choose a destination. Leave the destination at **FreshRSS default folder** to use the account's default category. The same action in a folder's menu preselects that folder.
+
+Click **New folder** and enter its name. Choose either an existing subscription to move or a new feed URL. FreshRSS creates a folder through its first subscription, so you cannot create an empty folder here.
+
+Use a subscription's actions menu to **Rename subscription**, **Move subscription**, or **Unsubscribe**. Moving a subscription preserves priority and AI settings. Processor updates all retained indexed articles for that feed, including articles FreshRSS no longer retains, then rebuilds affected similarity groups from retained history.
+
+**Unsubscribe** requires confirmation. It removes the feed from FreshRSS and disables its AI Feed. Processor retains archived article content and historical statistics.
+
+## Rename or delete folders
+
+Use a folder's actions menu to **Rename folder** or **Delete folder**. Duplicate folder or tag names are rejected.
+
+Renaming a folder preserves its processing settings, article groups, statistics, and retained article history. It creates new published Atom URLs and retires the old WebSub resources. Previous feed URLs stop working and do not redirect; update any clients that use them.
+
+Deleting a folder requires confirmation. Its subscriptions move to FreshRSS's default folder. Processor relocates retained history, rebuilds affected groups, and removes the deleted folder's processing and publishing state.
+
+For the available processing controls, see [folder and grouping settings](/processing/folders). Existing application links to `/folders` redirect to **Subscriptions**; folder filters, grouping-debugger links, feed previews, and the separate **Atom Feeds** page remain available.
 
 ## Important controls and behavior
 
-- Higher priority wins when otherwise similar articles compete to be the primary item.
+- Higher priority determines which source supplies a group's displayed main article. Equal priorities prefer the longer article body.
 - Priority does not change similarity scores, fetch order, or FreshRSS subscription state.
-- Search and category filters affect the current view only.
+- Search and folder filters affect the current view only.
 - Subscription identity remains tied to the upstream FreshRSS record.
 - The default AI Feed lookback is 48 hours. Processor enriches every item in that window during the normal processing cycle.
 - Exa defaults to `200000` text characters, HTML tags, and full verbosity. You can tune text sections, highlights, summaries, cache age, crawl timeout, subpages, targets, and extra links per subscription.
@@ -39,7 +59,23 @@ An enabled FreshRSS server must have completed at least one synchronization. Aut
 - Each entry contains the AI summary, up to ten same-server similar articles, optional sanitized Exa content, and sanitized original FreshRSS HTML.
 - A settings change regenerates in-window articles during the next cycle. New items remain unpublished until OpenCode returns a summary.
 
+## Filter repeated Exa content
+
+In **Configure AI Feed**, find **Exa Contents options** and enable **Filter repeating content**. This setting is off by default and applies to that subscription.
+
+The filter collapses consecutive copies of the same text block or image. When an HTML heading repeats the text of an adjacent paragraph, it keeps the heading. Repeated text separated by other content stays in the article.
+
+The reader and AI Feed apply the filter to existing cached Exa content. Future AI summaries use the filtered content during processing. Saving this option does not rewrite an existing summary immediately.
+
+Cached Exa content and article downloads keep the original body. Disable the option to show the unfiltered body again.
+
 ## Failure states
+
+A management operation first shows **Updating FreshRSS…**, then **Synchronizing article history…**. Processor verifies the upstream result before migrating local data. Conflicting edits remain disabled while work is running.
+
+If FreshRSS was updated but history synchronization failed, click **Retry** to finish the saved operation. The same action verifies an uncertain upstream result before resuming. Operations that need a retry block further edits and processing for that server until they finish. Expand **Error details** to inspect the failure. If the operation was not applied, review the error before retrying.
+
+An unchanged upstream response does not count as a successful rename or deletion. This includes attempts that FreshRSS ignores for its default folder. If the folder or subscription list fails to load, use the page's retry control.
 
 A missing feed usually indicates it was not returned by the configured FreshRSS account or synchronization has not completed. A saved priority cannot repair unreachable feed content or missing item bodies. An empty AI Feed can also indicate missing global credentials, an unavailable model, or summaries still waiting for a retry.
 

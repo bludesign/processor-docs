@@ -45,6 +45,19 @@ npm run build
 
 `npm run screenshots` creates deterministic mock databases, seeds representative data, builds a screenshot-specific application, installs Chromium when needed, and executes all light/dark desktop/mobile Playwright projects. See [Screenshot maintenance](/reference/screenshots).
 
+## Reader browser tests
+
+On Linux, install Chromium and its system libraries before the first run:
+
+```bash
+npx playwright install --with-deps chromium
+npm run test:reader
+```
+
+The reader suite prepares the mock database and screenshot build, checks FreshRSS read and starred state, filters, keyboard shortcuts, related articles, and pagination, then captures the reader in desktop and mobile light and dark themes. It runs serially with an isolated mock reset before each test.
+
+After the build and mock data are ready, use `npm run test:reader -- --skip-setup` to reuse them. Run this suite separately from the general screenshot suite because reader interactions change the shared mock FreshRSS account.
+
 ## Useful scripts
 
 - `npm run prisma:inspect` opens Prisma Studio.
